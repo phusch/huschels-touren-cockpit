@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.1
+# Huschels Touren Cockpit V0.1.2
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -44,3 +44,12 @@ GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
 - Recherchefeld startet mit einer ausfüllbaren Standard-Suchmaske
 - Button-Reihenfolge in jedem Schritt chronologisch nummeriert
 - Recherche explizit als 1 Kopieren → 2 ChatGPT öffnen → 3 Recherche erledigt
+
+
+## V0.1.2
+
+- Recherche startet jetzt direkt im Suchmasken-Feld
+- Cursor wird automatisch in die Suchmaske gesetzt
+- aktive Eingabe-/Arbeitsbereiche werden orange hervorgehoben
+- Suchmaske sichtbarer beschriftet und mit Hinweis versehen
+- Recherche-Zeitstrahl jetzt: 1 Suchmaske öffnen → 2 Auftrag kopieren → 3 ChatGPT öffnen → 4 Recherche erledigt

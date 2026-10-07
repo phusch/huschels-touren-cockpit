@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Huschels Touren Cockpit V0.1.1</title>
+<title>Huschels Touren Cockpit V0.1.2</title>
 <style>
 :root{
   --bg:#08101c;--panel:#101a2a;--line:#263a56;--text:#f3f7fb;--muted:#9fb0c6;
@@ -53,6 +53,20 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 .timeline-buttons .btn{position:relative}
 .timeline-buttons .btn:not(:last-child)::after{content:"→";display:inline-block;margin-left:9px;opacity:.6}
 
+
+.work-area{border-radius:18px;padding:16px;margin-top:22px;border:2px solid transparent;transition:.22s ease;background:rgba(9,20,33,.24)}
+.work-area.active-input{border-color:#f2a25b;background:linear-gradient(180deg,rgba(255,244,223,.11),rgba(239,178,111,.08));box-shadow:0 0 0 5px rgba(242,162,91,.10),0 14px 34px rgba(0,0,0,.18)}
+.work-area-kicker{display:none;font-size:11px;font-weight:900;letter-spacing:.13em;color:#f7b879}
+.work-area.active-input .work-area-kicker{display:block}
+.searchmask-hint{background:#fff2da;color:#5a3c28;border:1px solid #efc58f;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;margin-bottom:10px}
+#researchNotes{min-height:260px;line-height:1.5;transition:.18s ease}
+#researchNotes:focus{outline:none;border-color:#f1a45a;box-shadow:0 0 0 4px rgba(241,164,90,.18);background:#0c1826}
+.step.current{transform:translateY(-2px)}
+.panel.active-panel{border-color:#d68143;box-shadow:0 0 0 4px rgba(214,129,67,.10),var(--shadow)}
+.next.current-next{box-shadow:0 0 0 4px rgba(241,164,90,.15),0 15px 35px rgba(15,89,132,.28)}
+@keyframes softPulse{0%,100%{box-shadow:0 0 0 4px rgba(241,164,90,.10),var(--shadow)}50%{box-shadow:0 0 0 8px rgba(241,164,90,.16),var(--shadow)}}
+.active-panel.pulse-guide{animation:softPulse 1.8s ease-in-out 2}
+
 </style>
 </head>
 <body>
@@ -72,11 +86,11 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <button id="nextBtn" class="next"><small>NÄCHSTER SCHRITT</small><strong id="nextTitle">Projekt anlegen</strong><span id="nextDesc">Tourname festlegen und loslegen ›</span></button>
 </section>
 
-<div class="timeline-note">Zeitstrahl: immer von links nach rechts bzw. oben nach unten arbeiten.</div>
+<div class="timeline-note">Zeitstrahl: Der orange markierte Bereich zeigt dir immer, wo du gerade weiterarbeiten sollst.</div>
 <section id="steps" class="steps"></section>
 
 <div class="grid">
-<section class="panel">
+<section id="filesPanel" class="panel">
   <h2>Projekt & Dateien</h2>
   <div class="data-row"><span>Projekt</span><strong id="sumProject">–</strong></div>
   <div class="data-row"><span>Geplante GPX</span><strong id="sumPlanned">–</strong></div>
@@ -91,20 +105,24 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <div class="btnrow"><button id="exportProjectBtn" class="btn">Projekt sichern (.json)</button><button id="newProjectBtn" class="btn">Neues Projekt</button></div>
 </section>
 
-<section class="panel">
+<section id="workflowPanel" class="panel">
   <h2>Direkte Übergaben</h2>
   <div id="sameOriginNotice" class="notice"></div>
   <div class="btnrow" style="margin-top:12px"><button id="toNavigatorBtn" class="btn primary">An Tour Navigator übergeben</button><button id="fromNavigatorBtn" class="btn ok">Navigator-Stand übernehmen</button><button id="toAnimatorBtn" class="btn">Tour Animator öffnen</button></div>
 
-  <h2 style="margin-top:22px">Recherche mit ChatGPT</h2>
-  <label for="researchNotes">Was soll recherchiert werden?</label>
+  <div id="researchArea" class="work-area">
+  <div class="work-area-kicker">AKTUELLER EINGABEBEREICH</div>
+  <h2 style="margin-top:6px">Recherche mit ChatGPT</h2>
+  <div class="searchmask-hint">Die Suchmaske steht direkt im Feld unten. Einfach die Platzhalter ergänzen oder ändern.</div>
+  <label for="researchNotes">Suchmaske für die Reise</label>
   <textarea id="researchNotes" placeholder="Die Standard-Suchmaske wird automatisch eingefügt …"></textarea>
-  <div class="btnrow timeline-buttons" style="margin-top:10px"><button id="copyPromptBtn" class="btn">1 · Rechercheauftrag kopieren</button><button id="openChatgptBtn" class="btn primary">2 · ChatGPT öffnen</button><button id="researchDoneBtn" class="btn ok">3 · Recherche erledigt ✓</button></div>
+  <div class="btnrow timeline-buttons" style="margin-top:10px"><button id="copyPromptBtn" class="btn">2 · Rechercheauftrag kopieren</button><button id="openChatgptBtn" class="btn primary">3 · ChatGPT öffnen</button><button id="researchDoneBtn" class="btn ok">4 · Recherche erledigt ✓</button></div>
   <div id="message" class="notice hidden" style="margin-top:14px"></div>
+</div>
 </section>
 </div>
 
-<footer>Huschels Touren Cockpit · V0.1.1 · lokale Projektverwaltung im Browser</footer>
+<footer>Huschels Touren Cockpit · V0.1.2 · lokale Projektverwaltung im Browser</footer>
 </div>
 
 <dialog id="projectDialog">
@@ -163,6 +181,39 @@ function phaseState(){ensureProject();return {research:!!project.research?.done,
 function nextStep(){const s=phaseState();if(project.title==="Neue Tour")return "project";if(!s.research)return "research";if(!s.kurviger)return "kurviger";if(!s.planned)return "planned";if(!s.navigator)return "navigator";if(!s.guide)return "guide";if(!s.driven)return "driven";if(!project.finalNavigatorSnapshot)return "finalNavigator";if(!s.video)return "video";return "complete"}
 function phaseText(id){return {project:["Projekt anlegen","Tourname festlegen und loslegen"],research:["Recherche starten","Rechercheauftrag vorbereiten und ChatGPT öffnen"],kurviger:["Route in Kurviger planen","Route ausarbeiten und GPX exportieren"],planned:["Kurviger-GPX laden","GPX-Datei hier ins Cockpit übernehmen"],navigator:["Tour Navigator öffnen","Route bearbeiten und Tagesziele festlegen"],guide:["Reiseführer vorbereiten","Reiseplanungs-JSON im Navigator exportieren und hier einlesen"],driven:["Gefahrene GPX laden","Nach der Reise den tatsächlichen Track übernehmen"],finalNavigator:["Gefahrene Route bearbeiten","Gefahrene GPX an Tour Navigator geben und finalen Stand zurückholen"],video:["Tour Animator öffnen","Finale Route direkt an den Animator übergeben"],complete:["Workflow abgeschlossen","Projekt sichern oder eine neue Tour beginnen"]}[id]}
 function showMessage(msg,kind=""){const el=document.getElementById("message");el.textContent=msg;el.className="notice "+kind}
+
+function clearGuidance(){
+  document.getElementById("researchArea")?.classList.remove("active-input");
+  document.getElementById("filesPanel")?.classList.remove("active-panel","pulse-guide");
+  document.getElementById("workflowPanel")?.classList.remove("active-panel","pulse-guide");
+  document.getElementById("nextBtn")?.classList.remove("current-next");
+}
+function guideCurrentArea(next){
+  clearGuidance();
+  document.getElementById("nextBtn")?.classList.add("current-next");
+
+  if(next==="research"){
+    document.getElementById("workflowPanel")?.classList.add("active-panel");
+    document.getElementById("researchArea")?.classList.add("active-input");
+  }else if(next==="planned"||next==="driven"){
+    document.getElementById("filesPanel")?.classList.add("active-panel");
+  }else if(["navigator","guide","finalNavigator","video"].includes(next)){
+    document.getElementById("workflowPanel")?.classList.add("active-panel");
+  }
+}
+function openResearchInput(){
+  const area=document.getElementById("researchArea");
+  const field=document.getElementById("researchNotes");
+  document.getElementById("workflowPanel")?.classList.add("active-panel","pulse-guide");
+  area?.classList.add("active-input");
+  area?.scrollIntoView({behavior:"smooth",block:"center"});
+  setTimeout(()=>{
+    field?.focus({preventScroll:true});
+    if(field && typeof field.setSelectionRange==="function"){
+      field.setSelectionRange(0,0);
+    }
+  },420);
+}
 function render(){
  ensureProject();const state=phaseState(),next=nextStep(),txt=phaseText(next);
  document.getElementById("projectTitleView").textContent=project.title+(project.year?` · ${project.year}`:"");document.getElementById("projectMeta").textContent=`Zuletzt geändert: ${new Date(project.updatedAt).toLocaleString("de-DE")}`;
@@ -175,10 +226,11 @@ function render(){
  document.getElementById("sumGuide").textContent=project.guideJson?(project.guideJson.fileName||"eingelesen"):"–";
  document.getElementById("sumDriven").textContent=project.drivenGpx?`${project.drivenGpx.fileName} · ${project.drivenGpx.points.length} P.`:"–";
  const same=location.hostname==="phusch.github.io";const note=document.getElementById("sameOriginNotice");note.className="notice "+(same?"ok":"warn");note.textContent=same?"Direktübergabe aktiv: Cockpit, Tour Navigator und Animator teilen auf phusch.github.io denselben Browser-Speicher.":"Lokaler/Testbetrieb: Direkte Browser-Übergaben funktionieren vollständig, sobald das Cockpit ebenfalls unter phusch.github.io veröffentlicht ist.";
- document.getElementById("toNavigatorBtn").disabled=!(project.drivenGpx?.points?.length||project.plannedGpx?.points?.length||project.navigatorSnapshot?.points?.length);document.getElementById("toAnimatorBtn").disabled=!(project.finalNavigatorSnapshot?.points?.length||project.navigatorSnapshot?.points?.length)
+ document.getElementById("toNavigatorBtn").disabled=!(project.drivenGpx?.points?.length||project.plannedGpx?.points?.length||project.navigatorSnapshot?.points?.length);document.getElementById("toAnimatorBtn").disabled=!(project.finalNavigatorSnapshot?.points?.length||project.navigatorSnapshot?.points?.length);
+ guideCurrentArea(next);
 }
 function dayCount(s){return new Set((s?.points||[]).map(p=>p.day).filter(Boolean)).size}
-function stepActions(id){const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;if(id==="research")return b("copyPrompt","1 · Auftrag kopieren")+b("chatgpt","2 · ChatGPT öffnen","mini primary");if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):"";if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):"";if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");return ""}
+function stepActions(id){const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;if(id==="research")return b("openResearch","1 · Suchmaske öffnen")+b("copyPrompt","2 · Auftrag kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):"";if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):"";if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");return ""}
 function currentNavigatorPayload(preferDriven=true){if(preferDriven&&project.drivenGpx?.points?.length)return routeSnapshotFromPoints(project.drivenGpx.points,project.title+" – gefahren","Gefahrene GPX aus Huschels Touren Cockpit");if(project.navigatorSnapshot?.points?.length)return project.navigatorSnapshot;if(project.plannedGpx?.points?.length)return routeSnapshotFromPoints(project.plannedGpx.points,project.title,"Kurviger-GPX aus Huschels Touren Cockpit");return null}
 function toNavigator(preferDriven=true){const snap=currentNavigatorPayload(preferDriven);if(!snap){showMessage("Noch keine Route vorhanden.","warn");return}localStorage.setItem(NAV_KEY,JSON.stringify(snap));log("Route an Tour Navigator übergeben");save();location.href=settings.navigatorUrl}
 function fromNavigator(){try{const raw=localStorage.getItem(NAV_KEY);if(!raw)throw new Error("Im Browser ist noch kein Tour-Navigator-Stand gespeichert.");const snap=JSON.parse(raw);if(!Array.isArray(snap.points)||snap.points.length<2)throw new Error("Der gespeicherte Navigator-Stand ist ungültig.");if(project.drivenGpx)project.finalNavigatorSnapshot=snap;else project.navigatorSnapshot=snap;if(snap.tourTitle&&project.title==="Neue Tour")project.title=snap.tourTitle;log("Tour-Navigator-Stand übernommen");save();showMessage(`Navigator-Stand übernommen: ${snap.points.length} Punkte, ${dayCount(snap)} Tagesziele.`,"ok")}catch(e){showMessage(e.message,"warn")}}
@@ -200,14 +252,14 @@ Liefere mir:
 async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(_){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}}
 function safeName(s){return String(s||"Tour").replace(/[^\p{L}\p{N}\-_]+/gu,"_").replace(/^_+|_+$/g,"")}
 function saveBlob(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function handleNext(){const n=nextStep();if(n==="project")return openProjectDialog();if(n==="research")return document.getElementById("researchNotes").scrollIntoView({behavior:"smooth"});if(n==="kurviger")return location.href=settings.kurvigerUrl;if(n==="planned")return document.getElementById("plannedGpxInput").click();if(n==="navigator")return toNavigator(false);if(n==="guide")return location.href=settings.navigatorUrl;if(n==="driven")return document.getElementById("drivenGpxInput").click();if(n==="finalNavigator")return toNavigator(true);if(n==="video")return toAnimator();if(n==="complete")return saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project)}
+function handleNext(){const n=nextStep();if(n==="project")return openProjectDialog();if(n==="research")return openResearchInput();if(n==="kurviger")return location.href=settings.kurvigerUrl;if(n==="planned")return document.getElementById("plannedGpxInput").click();if(n==="navigator")return toNavigator(false);if(n==="guide")return location.href=settings.navigatorUrl;if(n==="driven")return document.getElementById("drivenGpxInput").click();if(n==="finalNavigator")return toNavigator(true);if(n==="video")return toAnimator();if(n==="complete")return saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project)}
 function openProjectDialog(){document.getElementById("projectName").value=project.title==="Neue Tour"?"":project.title;document.getElementById("projectYear").value=project.year||"";document.getElementById("projectDialog").showModal()}
 async function handleGpx(input,kind){const file=input.files?.[0];if(!file)return;try{const parsed=parseGpx(await file.text()),data={fileName:file.name,importedAt:new Date().toISOString(),kind:parsed.kind,rawCount:parsed.rawCount,points:parsed.points};if(kind==="planned")project.plannedGpx=data;else project.drivenGpx=data;log(`${kind==="planned"?"Geplante":"Gefahrene"} GPX geladen: ${file.name}`);save();showMessage(`${file.name}: ${parsed.points.length} Punkte übernommen (${parsed.kind}).`,"ok")}catch(e){showMessage("GPX konnte nicht geladen werden: "+e.message,"warn")}input.value=""}
 async function handleJson(file){if(!file)return;try{const data=JSON.parse(await file.text());if(data.format==="HuschelsTourenCockpitProject"){project=data;ensureProject();log("Cockpit-Projekt importiert");save();return showMessage("Cockpit-Projekt vollständig geladen.","ok")}if(data.format==="TourNavigatorModern-Backup"&&Array.isArray(data.points)){project.navigatorSnapshot=data;if(data.tourTitle)project.title=data.tourTitle;log("Tour-Navigator-Backup importiert");save();return showMessage("Tour-Navigator-Backup übernommen.","ok")}project.guideJson={fileName:file.name,importedAt:new Date().toISOString(),data};log("Reiseplanungs-JSON importiert");save();showMessage("JSON wurde dem Reiseführer-Schritt zugeordnet.","ok")}catch(e){showMessage("JSON konnte nicht geladen werden: "+e.message,"warn")}}
 function settingsToForm(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>document.getElementById(k).value=settings[k]||"")}
 function formToSettings(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>settings[k]=(document.getElementById(k).value||"").trim());localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));render()}
 
-document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="copyPrompt"){copyText(researchPrompt());showMessage("Rechercheauftrag kopiert.","ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")location.href=settings.kurvigerUrl;if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
+document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="copyPrompt"){copyText(researchPrompt());showMessage("Rechercheauftrag kopiert.","ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")location.href=settings.kurvigerUrl;if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
 document.getElementById("nextBtn").addEventListener("click",handleNext);
 document.getElementById("plannedGpxInput").addEventListener("change",e=>handleGpx(e.target,"planned"));
 document.getElementById("drivenGpxInput").addEventListener("change",e=>handleGpx(e.target,"driven"));

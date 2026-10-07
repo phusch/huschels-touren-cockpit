@@ -1,0 +1,8 @@
+Huschels Touren Cockpit V0.1.2
+
+- Suchmaske beim Recherche-Start automatisch anspringen
+- Cursor automatisch ins Recherchefeld setzen
+- aktiven Arbeitsbereich farblich hervorheben
+- orange visuelle Führung durch den Workflow
+- Suchmaske klarer sichtbar machen
+- Recherche-Schritte neu nummeriert
