@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Huschels Touren Cockpit V0.1.5</title>
+<title>Huschels Touren Cockpit V0.1.5.2</title>
 <style>
 :root{
   --bg:#08101c;--panel:#101a2a;--line:#263a56;--text:#f3f7fb;--muted:#9fb0c6;
@@ -90,6 +90,16 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 .hidden-file{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 @media(max-width:700px){.preplan-status{grid-template-columns:1fr}}
 
+
+.rich-preplan-editor{min-height:320px;max-height:640px;overflow:auto;background:#0a1624;color:#eef5fb;border:1px solid #3a516b;border-radius:14px;padding:16px;line-height:1.55}
+.rich-preplan-editor:focus{outline:none;border-color:#f1a45a;box-shadow:0 0 0 4px rgba(241,164,90,.15)}
+.rich-preplan-editor:empty:before{content:attr(data-placeholder);color:#7890a7}
+.rich-preplan-editor h1,.rich-preplan-editor h2,.rich-preplan-editor h3{color:#fff;margin:1em 0 .45em}
+.rich-preplan-editor p{margin:.55em 0}.rich-preplan-editor ul,.rich-preplan-editor ol{padding-left:1.5em}
+.rich-preplan-editor img{max-width:100%;height:auto;border-radius:12px;margin:10px 0;display:block}
+.rich-preplan-editor table{width:100%;border-collapse:collapse;margin:12px 0}.rich-preplan-editor th,.rich-preplan-editor td{border:1px solid #40566d;padding:8px;vertical-align:top}
+.compact-status{margin-top:12px;background:#0e1b2a;border:1px solid #3b5168;border-radius:12px;padding:10px 12px;font-size:13px;color:#dbe7f3}
+
 </style>
 </head>
 <body>
@@ -123,17 +133,18 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <div class="data-row"><span>Reiseführer JSON</span><strong id="sumGuide">–</strong></div>
   <div class="data-row"><span>Gefahrene GPX</span><strong id="sumDriven">–</strong></div>
 
-  <div class="filebox"><strong>Kurviger-GPX übernehmen · verbindliche Planungsroute</strong><small>Erst diese nach Kurviger bearbeitete GPX darf an Tour Navigator weitergegeben werden.</small><input id="plannedGpxInput" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml"></div>
-  <div class="filebox"><strong>Gefahrene GPX übernehmen</strong><small>Nach der Reise: tatsächlichen Track laden und an Tour Navigator übergeben.</small><input id="drivenGpxInput" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml"></div>
-  <div class="filebox"><strong>JSON einlesen</strong><small>Tour-Navigator-Backup, ChatGPT-Reiseplanungs-JSON oder Cockpit-Projektdatei.</small><input id="jsonInput" type="file" accept=".json,application/json"></div>
+  
+  
+  
 
-  <div class="btnrow"><button id="exportProjectBtn" class="btn">Projekt sichern (.json)</button><button id="newProjectBtn" class="btn">Neues Projekt</button></div>
+  <input id="plannedGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
+    <input id="drivenGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
+    <input id="jsonInput" class="hidden-file" type="file" accept=".json,application/json">
+    <div class="btnrow"><button id="newProjectBtn" class="btn">Neues Projekt</button><button id="exportProjectBtn" class="btn">Projekt sichern</button></div>
 </section>
 
 <section id="workflowPanel" class="panel">
-  <h2>Direkte Übergaben</h2>
   <div id="sameOriginNotice" class="notice"></div>
-  <div class="btnrow" style="margin-top:12px"><button id="toNavigatorBtn" class="btn primary">An Tour Navigator übergeben</button><button id="fromNavigatorBtn" class="btn ok">Navigator-Stand übernehmen</button><button id="toAnimatorBtn" class="btn">Tour Animator öffnen</button></div>
 
   <div id="researchArea" class="work-area">
   <div class="work-area-kicker">AKTUELLER EINGABEBEREICH</div>
@@ -211,22 +222,17 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <h2 style="margin-top:6px">Vorplanung aus ChatGPT</h2>
   <div class="preplan-warning"><strong>Wichtig:</strong> Diese Reisebeschreibung ist nur ein Entwurf vor Kurviger. Sie wird im Cockpit archiviert, aber weder an Tour Navigator noch an den späteren Reiseführer übergeben. Verbindlich wird erst die nach Kurviger zurückgeladene GPX.</div>
 
-  <label for="prePlanDescription">Vorläufige Reisebeschreibung aus ChatGPT</label>
-  <textarea id="prePlanDescription" placeholder="Hier Ergebnis A/B/C aus ChatGPT einfügen – ohne den GPX-XML-Codeblock."></textarea>
-
-  <input id="prePlanTextInput" class="hidden-file" type="file" accept=".txt,.md,text/plain,text/markdown">
+  <label for="prePlanDescription">Vorplanung aus ChatGPT – formatiert speichern</label>
+  <div class="preplan-warning"><strong>Einfach aus ChatGPT kopieren und hier einfügen.</strong> Überschriften, Listen, Tabellen und Formatierungen bleiben soweit möglich erhalten. Bilder kannst du zusätzlich über „Bild hinzufügen“ einfügen.</div>
+  <div id="prePlanDescription" class="rich-preplan-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="ChatGPT-Ergebnis hier einfügen …"></div>
+  <input id="prePlanImageInput" class="hidden-file" type="file" accept="image/*" multiple>
   <input id="chatgptGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
 
-  <div class="preplan-status">
-    <div class="preplan-chip">Reisebeschreibung<strong id="prePlanDescriptionStatus">noch nicht gespeichert</strong></div>
-    <div class="preplan-chip">ChatGPT-GPX<strong id="chatgptGpxStatus">noch nicht geladen</strong></div>
-  </div>
-
-  <div class="btnrow timeline-buttons">
-    <button id="savePrePlanBtn" class="btn">1 · Beschreibung speichern</button>
-    <button id="loadPrePlanTextBtn" class="btn">Textdatei laden</button>
+  <div class="compact-status">Vorplanung: <strong id="prePlanDescriptionStatus">noch nicht gespeichert</strong> · ChatGPT-GPX: <strong id="chatgptGpxStatus">noch nicht geladen</strong></div>
+  <div class="btnrow timeline-buttons" style="margin-top:12px">
+    <button id="savePrePlanBtn" class="btn">1 · Vorplanung speichern</button>
+    <button id="addPrePlanImageBtn" class="btn">Bild hinzufügen</button>
     <button id="loadChatgptGpxBtn" class="btn primary">2 · ChatGPT-GPX übernehmen</button>
-    <button id="downloadChatgptGpxBtn" class="btn">GPX erneut herunterladen</button>
     <button id="openKurvigerFromPrePlanBtn" class="btn ok">3 · In Kurviger weiter</button>
   </div>
 </div>
@@ -234,7 +240,7 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 </section>
 </div>
 
-<footer>Huschels Touren Cockpit · V0.1.5 · lokale Projektverwaltung im Browser</footer>
+<footer>Huschels Touren Cockpit · V0.1.5.2 · lokale Projektverwaltung im Browser</footer>
 </div>
 
 <dialog id="projectDialog">
@@ -395,7 +401,7 @@ const steps=[
 ];
 let settings=loadStored(SETTINGS_KEY,DEFAULT_SETTINGS), project=loadStored(APP_KEY,null);
 
-function freshProject(){return {format:"HuschelsTourenCockpitProject",version:1,id:"tour-"+Date.now(),title:"Neue Tour",year:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),research:{done:false,answers:{...RESEARCH_DEFAULTS}},prePlan:{description:"",savedAt:null},chatgptGpx:null,kurvigerOpenedAt:null,plannedGpx:null,navigatorSnapshot:null,guideJson:null,drivenGpx:null,finalNavigatorSnapshot:null,videoDone:false,history:[]}}
+function freshProject(){return {format:"HuschelsTourenCockpitProject",version:1,id:"tour-"+Date.now(),title:"Neue Tour",year:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),research:{done:false,answers:{...RESEARCH_DEFAULTS}},prePlan:{html:"",plainText:"",savedAt:null},chatgptGpx:null,kurvigerOpenedAt:null,plannedGpx:null,navigatorSnapshot:null,guideJson:null,drivenGpx:null,finalNavigatorSnapshot:null,videoDone:false,history:[]}}
 function ensureProject(){
  if(!project)project=freshProject();
  if(!project.research)project.research={done:false,answers:{...RESEARCH_DEFAULTS}};
@@ -405,7 +411,12 @@ function ensureProject(){
    delete project.research.notes;
  }
  project.research.answers={...RESEARCH_DEFAULTS,...project.research.answers};
- if(!project.prePlan)project.prePlan={description:"",savedAt:null};
+ if(!project.prePlan)project.prePlan={html:"",plainText:"",savedAt:null};
+ if(project.prePlan.description && !project.prePlan.html){
+   project.prePlan.html="<p>"+String(project.prePlan.description).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>")+"</p>";
+   project.prePlan.plainText=String(project.prePlan.description);
+   delete project.prePlan.description;
+ }
  if(!("chatgptGpx" in project))project.chatgptGpx=null;
  if(!("kurvigerOpenedAt" in project))project.kurvigerOpenedAt=null;
 }
@@ -426,7 +437,7 @@ function parseGpx(txt){
 }
 function phaseState(){ensureProject();return {
  research:!!project.research?.done,
- preplan:!!project.prePlan?.description?.trim() && !!project.chatgptGpx?.points?.length,
+ preplan:!!project.prePlan?.plainText?.trim() && !!project.chatgptGpx?.points?.length,
  kurviger:!!project.kurvigerOpenedAt,
  planned:!!project.plannedGpx?.points?.length,
  navigator:!!project.navigatorSnapshot?.points?.length,
@@ -534,11 +545,10 @@ function render(){
  ensureProject();const state=phaseState(),next=nextStep(),txt=phaseText(next);
  document.getElementById("projectTitleView").textContent=project.title+(project.year?` · ${project.year}`:"");document.getElementById("projectMeta").textContent=`Zuletzt geändert: ${new Date(project.updatedAt).toLocaleString("de-DE")}`;
  document.getElementById("phaseLabel").textContent=txt[0];document.getElementById("nextTitle").textContent=txt[0];document.getElementById("nextDesc").textContent=txt[1]+" ›";setResearchForm(project.research.answers);updateFilenamePreview();
- document.getElementById("prePlanDescription").value=project.prePlan?.description||"";
- document.getElementById("prePlanDescriptionStatus").textContent=project.prePlan?.description?.trim()?"Entwurf gespeichert":"noch nicht gespeichert";
+ document.getElementById("prePlanDescription").innerHTML=project.prePlan?.html||"";
+ document.getElementById("prePlanDescriptionStatus").textContent=project.prePlan?.plainText?.trim()?"Entwurf gespeichert":"noch nicht gespeichert";
  document.getElementById("chatgptGpxStatus").textContent=project.chatgptGpx?`${project.chatgptGpx.fileName} · ${project.chatgptGpx.points.length} Punkte`:"noch nicht geladen";
- document.getElementById("downloadChatgptGpxBtn").disabled=!project.chatgptGpx?.rawText;
- document.getElementById("openKurvigerFromPrePlanBtn").disabled=!(project.prePlan?.description?.trim()&&project.chatgptGpx?.points?.length);
+  document.getElementById("openKurvigerFromPrePlanBtn").disabled=!(project.prePlan?.plainText?.trim()&&project.chatgptGpx?.points?.length);
  const current={project:null,research:"research",preplan:"preplan",kurviger:"kurviger",planned:"planned",navigator:"navigator",guide:"guide",driven:"driven",finalNavigator:"driven",video:"video",complete:null}[next];
  document.getElementById("steps").innerHTML=steps.map(st=>`<article class="step ${state[st.id]?"done":""} ${current===st.id?"current":""}"><span class="check">${state[st.id]?"✓":current===st.id?"→":"○"}</span><div class="num">SCHRITT ${st.n}</div><h3>${st.title}</h3><p>${st.text}</p><div class="step-actions">${stepActions(st.id)}</div></article>`).join("");
  document.getElementById("sumProject").textContent=project.title==="Neue Tour"?"noch nicht benannt":project.title;
@@ -549,23 +559,32 @@ function render(){
  document.getElementById("sumGuide").textContent=project.guideJson?(project.guideJson.fileName||"eingelesen"):"–";
  document.getElementById("sumDriven").textContent=project.drivenGpx?`${project.drivenGpx.fileName} · ${project.drivenGpx.points.length} P.`:"–";
  const same=location.hostname==="phusch.github.io";const note=document.getElementById("sameOriginNotice");note.className="notice "+(same?"ok":"warn");note.textContent=same?"Direktübergabe aktiv: Cockpit, Tour Navigator und Animator teilen auf phusch.github.io denselben Browser-Speicher.":"Lokaler/Testbetrieb: Direkte Browser-Übergaben funktionieren vollständig, sobald das Cockpit ebenfalls unter phusch.github.io veröffentlicht ist.";
- document.getElementById("toNavigatorBtn").disabled=!(project.drivenGpx?.points?.length||project.plannedGpx?.points?.length||project.navigatorSnapshot?.points?.length);document.getElementById("toAnimatorBtn").disabled=!(project.finalNavigatorSnapshot?.points?.length||project.navigatorSnapshot?.points?.length);
  guideCurrentArea(next);
 }
 function dayCount(s){return new Set((s?.points||[]).map(p=>p.day).filter(Boolean)).size}
 function stepActions(id){
  const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;
- if(id==="research")return b("openResearch","1 · Angaben bearbeiten")+b("copyPrompt","2 · Reiseplanung kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");
- if(id==="preplan")return b("openPrePlan","1 · Ergebnis übernehmen")+b("loadChatgptGpx","2 · GPX laden","mini primary");
- if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");
- if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):b("loadPlannedGpx","1 · Kurviger-GPX laden","mini primary");
- if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");
- if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");
- if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):b("loadDrivenGpx","1 · Gefahrene GPX laden","mini primary");
- if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");
+ if(id==="research")return b("openResearch","Recherche bearbeiten","mini primary");
+ if(id==="preplan")return b("openPrePlan","Vorplanung übernehmen","mini primary");
+ if(id==="kurviger")return b("kurviger","Kurviger öffnen","mini primary");
+ if(id==="planned")return project.plannedGpx?b("toNavigator","An Tour Navigator","mini primary"):b("loadPlannedGpx","Kurviger-GPX laden","mini primary");
+ if(id==="navigator")return b("navigator","Navigator öffnen","mini primary")+b("fromNavigator","Stand übernehmen","mini ok");
+ if(id==="guide")return b("loadGuideJson","Reiseplanungs-JSON laden","mini primary");
+ if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","Gefahrene Route an Navigator","mini primary"):b("loadDrivenGpx","Gefahrene GPX laden","mini primary");
+ if(id==="video")return b("animator","Animator öffnen","mini primary")+b("videoDone","Video fertig ✓","mini ok");
  return "";
 }
 
+
+function sanitizePastedHtml(html){
+ const doc=new DOMParser().parseFromString(html,"text/html");
+ doc.querySelectorAll("script,style,iframe,object,embed,link,meta").forEach(n=>n.remove());
+ doc.querySelectorAll("*").forEach(el=>[...el.attributes].forEach(a=>{const n=a.name.toLowerCase(),v=String(a.value||"");if(n.startsWith("on")||n==="style")el.removeAttribute(a.name);if((n==="href"||n==="src")&&/^javascript:/i.test(v))el.removeAttribute(a.name)}));
+ return doc.body.innerHTML;
+}
+function insertHtmlAtCursor(html){document.execCommand("insertHTML",false,html)}
+function fileToDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
+async function insertImageFiles(files){const editor=document.getElementById("prePlanDescription");editor.focus();for(const file of Array.from(files||[])){if(!file.type.startsWith("image/"))continue;const url=await fileToDataUrl(file);insertHtmlAtCursor(`<img src="${url}" alt="${file.name.replace(/"/g,"&quot;")}">`)}}
 function openPrePlanArea(){
  const area=document.getElementById("prePlanArea"),field=document.getElementById("prePlanDescription");
  document.getElementById("workflowPanel")?.classList.add("active-panel","pulse-guide");
@@ -574,11 +593,13 @@ function openPrePlanArea(){
 }
 function savePrePlanDescription(){
  ensureProject();
- project.prePlan.description=(document.getElementById("prePlanDescription")?.value||"").trim();
- project.prePlan.savedAt=project.prePlan.description?new Date().toISOString():null;
- log("Vorläufige ChatGPT-Reisebeschreibung gespeichert");
+ const editor=document.getElementById("prePlanDescription");
+ project.prePlan.html=editor?.innerHTML||"";
+ project.prePlan.plainText=(editor?.innerText||"").trim();
+ project.prePlan.savedAt=project.prePlan.plainText?new Date().toISOString():null;
+ log("Vorläufige ChatGPT-Reisebeschreibung formatiert gespeichert");
  save();
- showMessage("Vorläufige Reisebeschreibung gespeichert. Sie bleibt nur Archiv/Vorplanung und wird nicht an Tour Navigator übergeben.","ok");
+ showMessage("Vorplanung gespeichert. Sie bleibt nur Vorplanung und wird nicht an Tour Navigator übergeben.","ok");
 }
 async function handleChatgptGpx(file){
  if(!file)return;
@@ -632,23 +653,19 @@ async function handleJson(file){if(!file)return;try{const data=JSON.parse(await 
 function settingsToForm(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>document.getElementById(k).value=settings[k]||"")}
 function formToSettings(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>settings[k]=(document.getElementById(k).value||"").trim());localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));render()}
 
-document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="openPrePlan"){openPrePlanArea()}if(x==="loadChatgptGpx"){document.getElementById("chatgptGpxInput").click()}if(x==="loadPlannedGpx"){document.getElementById("plannedGpxInput").click()}if(x==="loadDrivenGpx"){document.getElementById("drivenGpxInput").click()}if(x==="copyPrompt"){persistResearchForm();copyText(researchPrompt());showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")openKurviger();if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
+document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch")openResearchInput();if(x==="openPrePlan")openPrePlanArea();if(x==="loadPlannedGpx")document.getElementById("plannedGpxInput").click();if(x==="loadDrivenGpx")document.getElementById("drivenGpxInput").click();if(x==="loadGuideJson")document.getElementById("jsonInput").click();if(x==="kurviger")openKurviger();if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
 document.getElementById("nextBtn").addEventListener("click",handleNext);
-document.getElementById("savePrePlanBtn").addEventListener("click",savePrePlanDescription);
-document.getElementById("loadPrePlanTextBtn").addEventListener("click",()=>document.getElementById("prePlanTextInput").click());
-document.getElementById("prePlanTextInput").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{document.getElementById("prePlanDescription").value=await file.text();savePrePlanDescription()}catch(err){showMessage("Textdatei konnte nicht gelesen werden: "+err.message,"warn")}e.target.value=""});
-document.getElementById("loadChatgptGpxBtn").addEventListener("click",()=>document.getElementById("chatgptGpxInput").click());
-document.getElementById("chatgptGpxInput").addEventListener("change",async e=>{await handleChatgptGpx(e.target.files?.[0]);e.target.value=""});
-document.getElementById("downloadChatgptGpxBtn").addEventListener("click",downloadChatgptGpx);
-document.getElementById("openKurvigerFromPrePlanBtn").addEventListener("click",openKurviger);
-document.getElementById("plannedGpxInput").addEventListener("change",e=>handleGpx(e.target,"planned"));
-document.getElementById("drivenGpxInput").addEventListener("change",e=>handleGpx(e.target,"driven"));
-document.getElementById("jsonInput").addEventListener("change",e=>{handleJson(e.target.files?.[0]);e.target.value=""});
-document.getElementById("toNavigatorBtn").addEventListener("click",()=>toNavigator(!!project.drivenGpx));document.getElementById("fromNavigatorBtn").addEventListener("click",fromNavigator);document.getElementById("toAnimatorBtn").addEventListener("click",toAnimator);
-document.getElementById("openChatgptBtn").addEventListener("click",()=>location.href=settings.chatgptUrl);document.getElementById("copyPromptBtn").addEventListener("click",async()=>{
- persistResearchForm();await copyText(researchPrompt());
- showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok");
+
+document.getElementById("prePlanDescription").addEventListener("paste",async e=>{
+ const items=Array.from(e.clipboardData?.items||[]),imgs=items.filter(i=>i.type?.startsWith("image/"));
+ const html=e.clipboardData?.getData("text/html"),plain=e.clipboardData?.getData("text/plain");
+ if(imgs.length){e.preventDefault();if(html)insertHtmlAtCursor(sanitizePastedHtml(html));else if(plain)document.execCommand("insertText",false,plain);await insertImageFiles(imgs.map(i=>i.getAsFile()).filter(Boolean));return}
+ if(html){e.preventDefault();insertHtmlAtCursor(sanitizePastedHtml(html))}
 });
+document.getElementById("addPrePlanImageBtn").addEventListener("click",()=>document.getElementById("prePlanImageInput").click());
+document.getElementById("prePlanImageInput").addEventListener("change",async e=>{await insertImageFiles(e.target.files);e.target.value=""});
+
+document.getElementById("savePrePlanBtn").addEventListener("click",savePrePlanDescription);
 document.getElementById("researchDoneBtn").addEventListener("click",()=>{
  persistResearchForm();project.research.done=true;log("Recherche erledigt");save();
  showMessage("Recherche als erledigt markiert.","ok");

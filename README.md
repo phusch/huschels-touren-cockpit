@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.5
+# Huschels Touren Cockpit V0.1.5.2
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -83,3 +83,13 @@ GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
 - nur diese Kurviger-GPX wird an Tour Navigator weitergegeben
 - ChatGPT-GPX kann aus dem Cockpit erneut heruntergeladen werden
 - Workflow jetzt in 8 klar getrennten Schritten
+
+
+## V0.1.5.2
+- Oberfläche konsequent auf den normalen Zeitstrahl reduziert
+- redundante Direktübergabe-Buttons entfernt
+- Datei-Uploads werden direkt aus dem passenden Workflow-Schritt geöffnet
+- „Textdatei laden“, „GPX erneut herunterladen“ und andere Nebenwege entfernt
+- Vorplanung als Rich-Text-Archiv mit Formatierungen, Tabellen und Bildern
+- Bild hinzufügen bleibt als einzige Zusatzaktion in der Vorplanung
+- V0.1.5-Workflow und Trennung Vorplanung/Kurviger/Tour Navigator bleiben erhalten

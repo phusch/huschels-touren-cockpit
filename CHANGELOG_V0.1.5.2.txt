@@ -1,0 +1,7 @@
+Huschels Touren Cockpit V0.1.5.2
+
+- unnötige und doppelte Buttons entfernt
+- Bedienung auf Zeitstrahl reduziert
+- Dateiimporte aus den jeweiligen Schritten heraus
+- Vorplanung als Rich-Text mit Bildunterstützung
+- bestehende V0.1.5-Workflowlogik unverändert
