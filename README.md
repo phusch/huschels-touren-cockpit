@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.3
+# Huschels Touren Cockpit V0.1.4
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -61,3 +61,13 @@ GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
 - Suchmaske erscheint beim Start zuverlässig auch in bestehenden Projekten
 - neuer Button „Suchmaske neu einsetzen“
 - Recherchefeld höher und monospace-artig für bessere Lesbarkeit
+
+## V0.1.4
+
+- fester Reiseplanungs-Master-Prompt dauerhaft im Cockpit
+- Recherche vollständig als Formular: nur Antworten eingeben/auswählen
+- Fortbewegungsmittel: Motorrad, Auto, Wohnmobil, Fahrrad, Boot, Sonstige
+- Tageskilometer, Fahrzeit, Priorität, Umweg, Unterkunft, Budget, Parkplatz, Stopps, Aktivitäten und Kulinarik separat steuerbar
+- dynamischer GPX-Dateiname nach Schema YYYY-MM-DD_HHMM_Projektname.gpx
+- kompletter Workflow ChatGPT → Kurviger → Tour Navigator → Reiseplanungs-JSON → Wildhogs Reiseführer → gefahrene GPX → Tour Animator im Prompt verankert
+- bestehende alte Freitext-Recherche wird bei Migration als Zusatzwunsch übernommen

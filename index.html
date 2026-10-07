@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Huschels Touren Cockpit V0.1.3</title>
+<title>Huschels Touren Cockpit V0.1.4</title>
 <style>
 :root{
   --bg:#08101c;--panel:#101a2a;--line:#263a56;--text:#f3f7fb;--muted:#9fb0c6;
@@ -59,13 +59,27 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 .work-area-kicker{display:none;font-size:11px;font-weight:900;letter-spacing:.13em;color:#f7b879}
 .work-area.active-input .work-area-kicker{display:block}
 .searchmask-hint{background:#fff2da;color:#5a3c28;border:1px solid #efc58f;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;margin-bottom:10px}
-#researchNotes{min-height:360px;line-height:1.55;transition:.18s ease;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px}
-#researchNotes:focus{outline:none;border-color:#f1a45a;box-shadow:0 0 0 4px rgba(241,164,90,.18);background:#0c1826}
 .step.current{transform:translateY(-2px)}
 .panel.active-panel{border-color:#d68143;box-shadow:0 0 0 4px rgba(214,129,67,.10),var(--shadow)}
 .next.current-next{box-shadow:0 0 0 4px rgba(241,164,90,.15),0 15px 35px rgba(15,89,132,.28)}
 @keyframes softPulse{0%,100%{box-shadow:0 0 0 4px rgba(241,164,90,.10),var(--shadow)}50%{box-shadow:0 0 0 8px rgba(241,164,90,.16),var(--shadow)}}
 .active-panel.pulse-guide{animation:softPulse 1.8s ease-in-out 2}
+
+
+.research-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.form-field{background:rgba(255,255,255,.035);border:1px solid rgba(239,197,143,.22);border-radius:14px;padding:11px}
+.form-field.full{grid-column:1/-1}
+.form-field label{margin:0 0 7px;color:#f8dfc3}
+.form-field input,.form-field select,.form-field textarea{width:100%;background:#0a1624;color:#fff;border:1px solid #3a516b;border-radius:11px;padding:10px 11px}
+.form-field textarea{min-height:88px}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:#f1a45a;box-shadow:0 0 0 3px rgba(241,164,90,.16)}
+.option-grid{display:flex;flex-wrap:wrap;gap:8px}
+.option-chip{display:inline-flex;align-items:center;gap:7px;background:#152337;border:1px solid #3b4f65;border-radius:999px;padding:8px 10px;color:#eef5fb;font-size:13px}
+.option-chip input{width:auto;margin:0;accent-color:#df8c47}
+.form-help{font-size:12px;color:#b9c6d5;margin-top:6px;line-height:1.35}
+.filename-preview{margin-top:10px;background:#0d1b2b;border:1px solid #425a72;border-radius:12px;padding:10px 12px;font-size:13px;color:#dce8f5}
+.filename-preview code{color:#ffd8ad}
+@media(max-width:700px){.research-form{grid-template-columns:1fr}.form-field.full{grid-column:auto}}
 
 </style>
 </head>
@@ -86,7 +100,7 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <button id="nextBtn" class="next"><small>NÄCHSTER SCHRITT</small><strong id="nextTitle">Projekt anlegen</strong><span id="nextDesc">Tourname festlegen und loslegen ›</span></button>
 </section>
 
-<div class="timeline-note">Zeitstrahl: Der orange markierte Bereich zeigt dir immer, wo du gerade weiterarbeiten sollst.</div>
+<div class="timeline-note">Zeitstrahl: Der orange markierte Bereich zeigt dir immer den nächsten Arbeitsschritt. In der Recherche beantwortest du nur feste Fragen.</div>
 <section id="steps" class="steps"></section>
 
 <div class="grid">
@@ -113,17 +127,77 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <div id="researchArea" class="work-area">
   <div class="work-area-kicker">AKTUELLER EINGABEBEREICH</div>
   <h2 style="margin-top:6px">Recherche mit ChatGPT</h2>
-  <div class="searchmask-hint">Die Suchmaske steht direkt im Feld unten. Einfach die Platzhalter ergänzen oder ändern.</div>
-  <div class="btnrow" style="margin-bottom:10px"><button id="resetResearchMaskBtn" class="btn">↺ Suchmaske neu einsetzen</button></div>
-  <label for="researchNotes">Suchmaske für die Reise</label>
-  <textarea id="researchNotes" placeholder="Die Standard-Suchmaske wird automatisch eingefügt …"></textarea>
-  <div class="btnrow timeline-buttons" style="margin-top:10px"><button id="copyPromptBtn" class="btn">2 · Rechercheauftrag kopieren</button><button id="openChatgptBtn" class="btn primary">3 · ChatGPT öffnen</button><button id="researchDoneBtn" class="btn ok">4 · Recherche erledigt ✓</button></div>
+  <div class="searchmask-hint">Du beantwortest nur die festen Fragen. Der eigentliche Reiseplanungs-Prompt bleibt unveränderbar im Hintergrund und wird automatisch mit deinen Antworten ergänzt.</div>
+
+  <form id="researchForm" class="research-form" autocomplete="off">
+    <div class="form-field"><label for="rfDays">Reisetage</label><input id="rfDays" type="number" min="1" max="60" value="8"></div>
+    <div class="form-field"><label for="rfMode">Fortbewegungsmittel</label><select id="rfMode"><option value="Motorrad" selected>Motorrad</option><option value="Auto">Auto</option><option value="Wohnmobil">Wohnmobil</option><option value="Fahrrad">Fahrrad</option><option value="Boot">Boot</option><option value="Sonstige">Sonstige</option></select></div>
+    <div class="form-field"><label for="rfStart">Startort</label><input id="rfStart" type="text" placeholder="z. B. Aichschieß"></div>
+    <div class="form-field"><label for="rfRegion">Zielregion / Reiseziel</label><input id="rfRegion" type="text" placeholder="z. B. Route des Grandes Alpes"></div>
+    <div class="form-field"><label for="rfTripType">Tourtyp</label><select id="rfTripType"><option value="Rundreise" selected>Rundreise</option><option value="A nach B">A → B</option></select></div>
+    <div class="form-field"><label for="rfEnd">Endort</label><input id="rfEnd" type="text" placeholder="bei Rundreise meist Startort"></div>
+    <div class="form-field"><label for="rfTravelTime">Reisezeit / Monat</label><input id="rfTravelTime" type="text" placeholder="z. B. Juni 2027"></div>
+    <div class="form-field"><label for="rfTravelers">Mitreisende / Personen</label><input id="rfTravelers" type="text" placeholder="z. B. 2 Personen / 2 Motorräder"></div>
+    <div class="form-field"><label for="rfDailyKm">Bevorzugte Tageskilometer</label><input id="rfDailyKm" type="text" placeholder="z. B. 220–300 km"></div>
+    <div class="form-field"><label for="rfDriveHours">Max. reine Fahrzeit pro Tag</label><input id="rfDriveHours" type="text" placeholder="z. B. 5–6 Stunden"></div>
+    <div class="form-field"><label for="rfPriority">Planungs-Priorität</label><select id="rfPriority"><option value="ausgewogen" selected>Ausgewogen</option><option value="fahrerisch schöne Strecke">Fahrerisch schöne Strecke</option><option value="Sehenswürdigkeiten">Sehenswürdigkeiten</option></select></div>
+    <div class="form-field"><label for="rfDetour">Max. Umweg für Highlight</label><select id="rfDetour"><option value="10 km">10 km</option><option value="20 km" selected>20 km</option><option value="30 km">30 km</option><option value="kein fester Grenzwert">kein fester Grenzwert</option></select></div>
+
+    <div class="form-field full">
+      <label for="rfRoads">Straßenwunsch</label>
+      <select id="rfRoads">
+        <option value="kleine kurvige Nebenstraßen, Pässe, landschaftlich schön, möglichst wenig Autobahn" selected>Kleine kurvige Nebenstraßen · Pässe · landschaftlich schön · möglichst wenig Autobahn</option>
+        <option value="gemischt und landschaftlich schön">Gemischt und landschaftlich schön</option>
+        <option value="möglichst schnelle Verbindung">Möglichst schnelle Verbindung</option>
+      </select>
+      <div class="form-help">Bei Motorrad zusätzlich: Schotter/Offroad vermeiden; Hauptstraßen nur wenn sinnvoll.</div>
+    </div>
+
+    <div class="form-field"><label for="rfLodging">Übernachtung</label><select id="rfLodging"><option value="Hotel / Pension / Gasthof flexibel" selected>Hotel / Pension / Gasthof flexibel</option><option value="Hotel">Hotel</option><option value="Pension">Pension</option><option value="Gasthof">Gasthof</option><option value="Sonstige">Sonstige</option></select></div>
+    <div class="form-field"><label for="rfBudget">Budget pro Person / Nacht</label><input id="rfBudget" type="text" value="max. 100 €"></div>
+    <div class="form-field"><label for="rfParking">Parkplatz an Unterkunft</label><select id="rfParking"><option value="wichtig, möglichst direkt am Hotel / Unterkunft" selected>Wichtig – möglichst direkt am Hotel</option><option value="wünschenswert">Wünschenswert</option><option value="nicht wichtig">Nicht wichtig</option></select></div>
+    <div class="form-field"><label for="rfStops">Zwischenziele / Stopps</label><select id="rfStops"><option value="nach Region und Wertigkeit der Stopps, keine künstliche feste Anzahl" selected>Nach Region & Wertigkeit</option><option value="wenige ausgewählte Highlights">Wenige ausgewählte Highlights</option><option value="viele interessante Stopps">Viele interessante Stopps</option></select></div>
+
+    <div class="form-field full">
+      <label>Aktivitäten</label>
+      <div class="option-grid">
+        <label class="option-chip"><input type="checkbox" name="activity" value="Aussichtspunkte" checked>Aussicht</label>
+        <label class="option-chip"><input type="checkbox" name="activity" value="Technik und Museen" checked>Technik/Museen</label>
+        <label class="option-chip"><input type="checkbox" name="activity" value="historische Orte" checked>Historisches</label>
+        <label class="option-chip"><input type="checkbox" name="activity" value="Natur" checked>Natur</label>
+        <label class="option-chip"><input type="checkbox" name="activity" value="kurze Wanderungen">Wandern</label>
+        <label class="option-chip"><input type="checkbox" name="activity" value="Städte und besondere Ortskerne" checked>Städte</label>
+      </div>
+    </div>
+
+    <div class="form-field full">
+      <label>Kulinarik</label>
+      <div class="option-grid">
+        <label class="option-chip"><input type="checkbox" name="culinary" value="regionale Küche" checked>Regionale Küche</label>
+        <label class="option-chip"><input type="checkbox" name="culinary" value="regionale Biere" checked>Bier</label>
+        <label class="option-chip"><input type="checkbox" name="culinary" value="Wein" checked>Wein</label>
+        <label class="option-chip"><input type="checkbox" name="culinary" value="besondere und ausgefallene Gasthäuser oder Locations" checked>Besondere Locations</label>
+        <label class="option-chip"><input type="checkbox" name="culinary" value="Cafés">Cafés</label>
+      </div>
+    </div>
+
+    <div class="form-field full"><label for="rfAvoid">Was vermeiden?</label><input id="rfAvoid" type="text" value="Schotter / Offroad; unnötige Autobahn; langweilige Hauptverkehrsachsen"></div>
+    <div class="form-field full"><label for="rfExtra">Besondere Wünsche / Zusatzwünsche</label><textarea id="rfExtra" placeholder="Nur deine zusätzlichen Wünsche eingeben …"></textarea></div>
+  </form>
+
+  <div id="gpxFilenamePreview" class="filename-preview">GPX-Dateiname: <code>–</code></div>
+
+  <div class="btnrow timeline-buttons" style="margin-top:12px">
+    <button id="copyPromptBtn" class="btn">1 · Reiseplanung kopieren</button>
+    <button id="openChatgptBtn" class="btn primary">2 · ChatGPT öffnen</button>
+    <button id="researchDoneBtn" class="btn ok">3 · Recherche erledigt ✓</button>
+  </div>
   <div id="message" class="notice hidden" style="margin-top:14px"></div>
 </div>
 </section>
 </div>
 
-<footer>Huschels Touren Cockpit · V0.1.3 · lokale Projektverwaltung im Browser</footer>
+<footer>Huschels Touren Cockpit · V0.1.4 · lokale Projektverwaltung im Browser</footer>
 </div>
 
 <dialog id="projectDialog">
@@ -150,6 +224,128 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 const APP_KEY="huschelsTourenCockpit.project.v1", SETTINGS_KEY="huschelsTourenCockpit.settings.v1";
 const NAV_KEY="tourNavigatorModern.lastRoute.v1", ANIM_KEY="tourNavigator.animationRoute";
 const DEFAULT_SETTINGS={navigatorUrl:"https://phusch.github.io/tour-navigator-modern/",animatorUrl:"https://phusch.github.io/tour-animator/",kurvigerUrl:"https://kurviger.de/de",chatgptUrl:"https://chatgpt.com/",guideUrl:""};
+const MASTER_TRAVEL_PROMPT=`Du bist mein persönlicher Experte für Reiseplanung, Motorradtouren, Routenrecherche, GPX-Vorbereitung und strukturierte Weiterverarbeitung meiner Reisedaten.
+
+ZIEL
+Erstelle aus meinen Angaben eine vollständige Reiseplanung und eine GPX-Datei für meinen festen Workflow.
+
+MEIN WORKFLOW
+1. Recherche/Grobplanung mit ChatGPT
+2. GPX-Erstellung durch ChatGPT
+3. Import der GPX in Kurviger
+4. fahrerische Feinplanung in Kurviger
+5. Export der bearbeiteten GPX
+6. Import in Tour Navigator Modern
+7. Tourpunkte bearbeiten und Tagesziele N1, N2, N3 ... festlegen bzw. prüfen
+8. Export einer strukturierten Reiseplanungs-JSON
+9. Erstellung der Wildhogs-Reiseführer-App
+10. nach der Reise Import der tatsächlich gefahrenen GPX in Tour Navigator
+11. Übergabe des finalen Navigator-Stands an den Tour Animator
+
+FESTE PLANUNGSREGELN
+- Erlaubte Fortbewegungsmittel: Motorrad, Auto, Wohnmobil, Fahrrad, Boot oder ausdrücklich genannte andere Art.
+- Bei Motorrad: kurvige, landschaftlich schöne Nebenstraßen bevorzugen.
+- Autobahn bei Motorrad möglichst vermeiden.
+- Große Hauptstraßen nur verwenden, wenn sinnvoll.
+- Schotter/Offroad bei Motorrad grundsätzlich vermeiden, sofern nicht ausdrücklich anders gewünscht.
+- Fahrerisch schöne Strecke und Sehenswürdigkeiten nach meiner gewählten Priorität kombinieren.
+- Für Highlights höchstens den von mir gewählten Umweg akzeptieren.
+- Keine unnötigen Hin-und-zurück-Stiche.
+- Übernachtung entsprechend meiner Auswahl; mein Budget beachten.
+- Bei Motorrad ist Parkplatz direkt an der Unterkunft wichtig; Garage/überdacht ist Pluspunkt.
+- Kulinarik ist fester Bestandteil: regionale Küche, Bier, Wein, besondere/ausgefallene Gasthäuser oder Locations entsprechend meiner Auswahl.
+- Stopps nach Region und Wertigkeit; keine künstliche feste Anzahl.
+- Aktivitäten gemäß meiner Auswahl berücksichtigen.
+- Soweit möglich saisonale Sperrungen, Passöffnungen, Fahrverbote, Maut, Fähren, Zufahrtsbeschränkungen und Öffnungszeiten prüfen.
+- Unsichere Angaben klar kennzeichnen.
+- Meine Vorgaben niemals stillschweigend verändern.
+
+GPX-STRATEGIE FÜR KURVIGER
+Die GPX soll NICHT jede Straßenkurve abbilden. Kurviger berechnet anschließend die tatsächliche Straßenführung.
+Setze nur entscheidende Navigationspunkte:
+START
+SHAPING
+ZWISCHENZIEL
+TAGESZIEL
+ZIEL
+
+Shaping-Punkte lenken Kurviger auf gewünschte Strecken, Pässe oder Regionen.
+Zwischenziele sind echte anzufahrende Orte.
+Tagesziele müssen eindeutig heißen:
+N1 Name
+N2 Name
+N3 Name
+usw.
+Diese Namen bleiben später in Tour Navigator, Reiseführer und Tour Animator stabil.
+
+NAVIGATIONSPUNKTE
+Für jeden Punkt angeben:
+Nr. | Tag | Rolle | Name | Breitengrad | Längengrad | Grund
+
+Bei Rolle ausschließlich verwenden:
+start
+shaping
+via
+day_destination
+destination
+
+Keine generischen Namen wie Waypoint, Shaping Point oder Punkt 1.
+
+PLAUSIBILITÄTSPRÜFUNG
+Vor Ausgabe prüfen:
+- geografisch richtige Reihenfolge
+- keine unnötigen Rückfahrten
+- Tagesziele chronologisch korrekt
+- Koordinaten passend
+- Tagesetappen realistisch
+- Kilometersummen/Fahrzeiten plausibel
+- genügend Punkte für Kurviger, aber nicht unnötig detailliert
+
+AUSGABE
+ERGEBNIS A – REISEÜBERSICHT
+Gesamtbeschreibung, Charakter, Highlights, wichtige Hinweise.
+
+ERGEBNIS B – DETAILLIERTE TAGESETAPPEN
+Je Tag:
+Start → Tagesziel
+Kilometer
+reine Fahrzeit
+Charakter der Etappe
+wichtige Strecken
+Zwischenziele/Aussichtspunkte
+Aktivitäten
+Kulinarik
+Übernachtungshinweis
+Besonderheiten
+bei Bedarf Kurz-/Schlechtwettervariante
+
+ERGEBNIS C – NAVIGATIONSPUNKTE / ÜBERGABEDATEN
+Tabelle in exakter Fahrreihenfolge:
+Nr. | Tag | Rolle | Name | Breitengrad | Längengrad | Grund
+
+ERGEBNIS D – GPX-DATEI
+GPX 1.1 als Route mit <rte> und geordneten <rtept>-Elementen.
+Komplette GPX in EINEM XML-Codeblock.
+Direkt darüber exakt den vorgegebenen Dateinamen nennen.
+Für Kurviger importierbar.
+Keine unnötig detaillierte Trackaufzeichnung.
+
+DATEINAMEN-SCHEMA
+YYYY-MM-DD_HHMM_Projektname.gpx
+
+WICHTIG
+Die Namen der Tagesziele und wichtigen Zwischenziele müssen über den gesamten Workflow stabil bleiben.`;
+const RESEARCH_DEFAULTS={
+days:"8",mode:"Motorrad",start:"",region:"",tripType:"Rundreise",end:"",travelTime:"",travelers:"",
+dailyKm:"",driveHours:"",priority:"ausgewogen",detour:"20 km",
+roads:"kleine kurvige Nebenstraßen, Pässe, landschaftlich schön, möglichst wenig Autobahn",
+lodging:"Hotel / Pension / Gasthof flexibel",budget:"max. 100 €",
+parking:"wichtig, möglichst direkt am Hotel / Unterkunft",
+stops:"nach Region und Wertigkeit der Stopps, keine künstliche feste Anzahl",
+activities:["Aussichtspunkte","Technik und Museen","historische Orte","Natur","Städte und besondere Ortskerne"],
+culinary:["regionale Küche","regionale Biere","Wein","besondere und ausgefallene Gasthäuser oder Locations"],
+avoid:"Schotter / Offroad; unnötige Autobahn; langweilige Hauptverkehrsachsen",extra:""
+};
 const steps=[
 {id:"research",n:1,title:"Recherche",text:"Idee, Etappen, Ziele, Hotels und Besonderheiten mit ChatGPT vorbereiten."},
 {id:"kurviger",n:2,title:"Route in Kurviger",text:"Motorradroute ausarbeiten und anschließend als GPX exportieren."},
@@ -161,8 +357,17 @@ const steps=[
 ];
 let settings=loadStored(SETTINGS_KEY,DEFAULT_SETTINGS), project=loadStored(APP_KEY,null);
 
-function freshProject(){return {format:"HuschelsTourenCockpitProject",version:1,id:"tour-"+Date.now(),title:"Neue Tour",year:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),research:{done:false,notes:"Tage: 8\nFortbewegungsmittel: Motorrad\nStartort:\nZielregion / Reiseziel:\nTageskilometer ungefähr:\nStraßenwunsch: kleine Straßen / Pässe / landschaftlich schön / möglichst wenig Autobahn\nÜbernachtung: Hotel / Pension / Gasthof / Sonstige\nBudget pro Nacht:\nAktivitäten: Aussichtspunkte / Städte / Museen / Natur / Kulinarik / Sonstige\nKulinarik: regionale Küche / Bier / Wein / Cafés / Sonstige\nBesondere Wünsche:\nWas vermeiden:\nReisezeit / Monat:\nMitreisende:\nZusatzwünsche:"},plannedGpx:null,navigatorSnapshot:null,guideJson:null,drivenGpx:null,finalNavigatorSnapshot:null,videoDone:false,history:[]}}
-function ensureProject(){if(!project)project=freshProject();if(!project.research)project.research={done:false,notes:"Tage: 8\nFortbewegungsmittel: Motorrad\nStartort:\nZielregion / Reiseziel:\nTageskilometer ungefähr:\nStraßenwunsch: kleine Straßen / Pässe / landschaftlich schön / möglichst wenig Autobahn\nÜbernachtung: Hotel / Pension / Gasthof / Sonstige\nBudget pro Nacht:\nAktivitäten: Aussichtspunkte / Städte / Museen / Natur / Kulinarik / Sonstige\nKulinarik: regionale Küche / Bier / Wein / Cafés / Sonstige\nBesondere Wünsche:\nWas vermeiden:\nReisezeit / Monat:\nMitreisende:\nZusatzwünsche:"};if(!String(project.research.notes||"").trim())project.research.notes="Tage: 8\nFortbewegungsmittel: Motorrad\nStartort:\nZielregion / Reiseziel:\nTageskilometer ungefähr:\nStraßenwunsch: kleine Straßen / Pässe / landschaftlich schön / möglichst wenig Autobahn\nÜbernachtung: Hotel / Pension / Gasthof / Sonstige\nBudget pro Nacht:\nAktivitäten: Aussichtspunkte / Städte / Museen / Natur / Kulinarik / Sonstige\nKulinarik: regionale Küche / Bier / Wein / Cafés / Sonstige\nBesondere Wünsche:\nWas vermeiden:\nReisezeit / Monat:\nMitreisende:\nZusatzwünsche:"}
+function freshProject(){return {format:"HuschelsTourenCockpitProject",version:1,id:"tour-"+Date.now(),title:"Neue Tour",year:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),research:{done:false,answers:{...RESEARCH_DEFAULTS}},plannedGpx:null,navigatorSnapshot:null,guideJson:null,drivenGpx:null,finalNavigatorSnapshot:null,videoDone:false,history:[]}}
+function ensureProject(){
+ if(!project)project=freshProject();
+ if(!project.research)project.research={done:false,answers:{...RESEARCH_DEFAULTS}};
+ if(!project.research.answers){
+   const old=String(project.research.notes||"").trim();
+   project.research.answers={...RESEARCH_DEFAULTS,extra:old && !old.includes("Tage:") ? old : ""};
+   delete project.research.notes;
+ }
+ project.research.answers={...RESEARCH_DEFAULTS,...project.research.answers};
+}
 function loadStored(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch(_){return fallback}}
 function save(){ensureProject();project.updatedAt=new Date().toISOString();localStorage.setItem(APP_KEY,JSON.stringify(project));render()}
 function log(action){ensureProject();project.history=Array.isArray(project.history)?project.history:[];project.history.push({at:new Date().toISOString(),action});if(project.history.length>80)project.history=project.history.slice(-80)}
@@ -184,28 +389,56 @@ function phaseText(id){return {project:["Projekt anlegen","Tourname festlegen un
 function showMessage(msg,kind=""){const el=document.getElementById("message");el.textContent=msg;el.className="notice "+kind}
 
 
-const RESEARCH_TEMPLATE="Tage: 8\nFortbewegungsmittel: Motorrad\nStartort:\nZielregion / Reiseziel:\nTageskilometer ungefähr:\nStraßenwunsch: kleine Straßen / Pässe / landschaftlich schön / möglichst wenig Autobahn\nÜbernachtung: Hotel / Pension / Gasthof / Sonstige\nBudget pro Nacht:\nAktivitäten: Aussichtspunkte / Städte / Museen / Natur / Kulinarik / Sonstige\nKulinarik: regionale Küche / Bier / Wein / Cafés / Sonstige\nBesondere Wünsche:\nWas vermeiden:\nReisezeit / Monat:\nMitreisende:\nZusatzwünsche:";
-function hasResearchMask(value){
-  const s=String(value||"");
-  return s.includes("Tage:") && s.includes("Fortbewegungsmittel:") && s.includes("Übernachtung:");
+
+function selectedValues(name){return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(x=>x.value)}
+function getResearchAnswers(){return {
+ days:document.getElementById("rfDays")?.value||"",mode:document.getElementById("rfMode")?.value||"",
+ start:document.getElementById("rfStart")?.value.trim()||"",region:document.getElementById("rfRegion")?.value.trim()||"",
+ tripType:document.getElementById("rfTripType")?.value||"",end:document.getElementById("rfEnd")?.value.trim()||"",
+ travelTime:document.getElementById("rfTravelTime")?.value.trim()||"",travelers:document.getElementById("rfTravelers")?.value.trim()||"",
+ dailyKm:document.getElementById("rfDailyKm")?.value.trim()||"",driveHours:document.getElementById("rfDriveHours")?.value.trim()||"",
+ priority:document.getElementById("rfPriority")?.value||"",detour:document.getElementById("rfDetour")?.value||"",
+ roads:document.getElementById("rfRoads")?.value||"",lodging:document.getElementById("rfLodging")?.value||"",
+ budget:document.getElementById("rfBudget")?.value.trim()||"",parking:document.getElementById("rfParking")?.value||"",
+ stops:document.getElementById("rfStops")?.value||"",activities:selectedValues("activity"),culinary:selectedValues("culinary"),
+ avoid:document.getElementById("rfAvoid")?.value.trim()||"",extra:document.getElementById("rfExtra")?.value.trim()||""
+}}
+function setResearchForm(a){
+ const v={...RESEARCH_DEFAULTS,...(a||{})};const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val??""};
+ set("rfDays",v.days);set("rfMode",v.mode);set("rfStart",v.start);set("rfRegion",v.region);set("rfTripType",v.tripType);set("rfEnd",v.end);
+ set("rfTravelTime",v.travelTime);set("rfTravelers",v.travelers);set("rfDailyKm",v.dailyKm);set("rfDriveHours",v.driveHours);
+ set("rfPriority",v.priority);set("rfDetour",v.detour);set("rfRoads",v.roads);set("rfLodging",v.lodging);set("rfBudget",v.budget);
+ set("rfParking",v.parking);set("rfStops",v.stops);set("rfAvoid",v.avoid);set("rfExtra",v.extra);
+ document.querySelectorAll('input[name="activity"]').forEach(x=>x.checked=(v.activities||[]).includes(x.value));
+ document.querySelectorAll('input[name="culinary"]').forEach(x=>x.checked=(v.culinary||[]).includes(x.value));
 }
-function buildResearchMask(existingText=""){
-  const old=String(existingText||"").trim();
-  if(!old || hasResearchMask(old)) return old || RESEARCH_TEMPLATE;
-  return RESEARCH_TEMPLATE.replace("Zusatzwünsche:","Zusatzwünsche / bisherige Notiz: "+old);
-}
-function ensureResearchMaskVisible(){
-  ensureProject();
-  const current=String(project.research?.notes||"");
-  const next=buildResearchMask(current);
-  if(next!==current){
-    project.research.notes=next;
-    project.updatedAt=new Date().toISOString();
-    localStorage.setItem(APP_KEY,JSON.stringify(project));
-  }
-  const field=document.getElementById("researchNotes");
-  if(field) field.value=project.research.notes||RESEARCH_TEMPLATE;
-}
+function persistResearchForm(){ensureProject();project.research.answers=getResearchAnswers();project.updatedAt=new Date().toISOString();localStorage.setItem(APP_KEY,JSON.stringify(project));updateFilenamePreview()}
+function safeFilePart(s){return String(s||"Tour").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9_-]+/g,"_").replace(/^_+|_+$/g,"")||"Tour"}
+function generatedGpxFilename(){const d=new Date(),pad=n=>String(n).padStart(2,"0");const stamp=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;return `${stamp}_${safeFilePart(project.title)}.gpx`}
+function updateFilenamePreview(){const el=document.querySelector("#gpxFilenamePreview code");if(el)el.textContent=generatedGpxFilename()}
+function researchAnswersText(a){return `Projektname: ${project.title}
+Reisetage: ${a.days}
+Fortbewegungsmittel: ${a.mode}
+Startort: ${a.start||"offen"}
+Zielregion / Reiseziel: ${a.region||"offen"}
+Tourtyp: ${a.tripType}
+Endort: ${a.end||"offen"}
+Reisezeit / Monat: ${a.travelTime||"offen"}
+Mitreisende / Personen: ${a.travelers||"offen"}
+Bevorzugte Tageskilometer: ${a.dailyKm||"offen"}
+Maximale reine Fahrzeit pro Tag: ${a.driveHours||"offen"}
+Planungs-Priorität: ${a.priority}
+Maximaler Umweg für Highlight: ${a.detour}
+Straßenwunsch: ${a.roads}
+Übernachtung: ${a.lodging}
+Budget pro Person / Nacht: ${a.budget||"offen"}
+Parkplatz an Unterkunft: ${a.parking}
+Zwischenziele / Stopps: ${a.stops}
+Aktivitäten: ${(a.activities||[]).join(", ")||"keine besonderen Vorgaben"}
+Kulinarik: ${(a.culinary||[]).join(", ")||"keine besonderen Vorgaben"}
+Was vermeiden: ${a.avoid||"keine zusätzlichen Vorgaben"}
+Besondere Wünsche / Zusatzwünsche: ${a.extra||"keine"}`}
+
 function clearGuidance(){
   document.getElementById("researchArea")?.classList.remove("active-input");
   document.getElementById("filesPanel")?.classList.remove("active-panel","pulse-guide");
@@ -226,23 +459,15 @@ function guideCurrentArea(next){
   }
 }
 function openResearchInput(){
-  ensureResearchMaskVisible();
-  const area=document.getElementById("researchArea");
-  const field=document.getElementById("researchNotes");
-  document.getElementById("workflowPanel")?.classList.add("active-panel","pulse-guide");
-  area?.classList.add("active-input");
-  area?.scrollIntoView({behavior:"smooth",block:"center"});
-  setTimeout(()=>{
-    field?.focus({preventScroll:true});
-    if(field && typeof field.setSelectionRange==="function"){
-      field.setSelectionRange(0,0);
-    }
-  },420);
+ const area=document.getElementById("researchArea"),field=document.getElementById("rfDays");
+ document.getElementById("workflowPanel")?.classList.add("active-panel","pulse-guide");
+ area?.classList.add("active-input");area?.scrollIntoView({behavior:"smooth",block:"start"});
+ setTimeout(()=>field?.focus({preventScroll:true}),420);
 }
 function render(){
  ensureProject();const state=phaseState(),next=nextStep(),txt=phaseText(next);
  document.getElementById("projectTitleView").textContent=project.title+(project.year?` · ${project.year}`:"");document.getElementById("projectMeta").textContent=`Zuletzt geändert: ${new Date(project.updatedAt).toLocaleString("de-DE")}`;
- document.getElementById("phaseLabel").textContent=txt[0];document.getElementById("nextTitle").textContent=txt[0];document.getElementById("nextDesc").textContent=txt[1]+" ›";ensureResearchMaskVisible();document.getElementById("researchNotes").value=project.research?.notes||RESEARCH_TEMPLATE;
+ document.getElementById("phaseLabel").textContent=txt[0];document.getElementById("nextTitle").textContent=txt[0];document.getElementById("nextDesc").textContent=txt[1]+" ›";setResearchForm(project.research.answers);updateFilenamePreview();
  const current={project:null,research:"research",kurviger:"kurviger",planned:"planned",navigator:"navigator",guide:"guide",driven:"driven",finalNavigator:"driven",video:"video",complete:null}[next];
  document.getElementById("steps").innerHTML=steps.map(st=>`<article class="step ${state[st.id]?"done":""} ${current===st.id?"current":""}"><span class="check">${state[st.id]?"✓":current===st.id?"→":"○"}</span><div class="num">SCHRITT ${st.n}</div><h3>${st.title}</h3><p>${st.text}</p><div class="step-actions">${stepActions(st.id)}</div></article>`).join("");
  document.getElementById("sumProject").textContent=project.title==="Neue Tour"?"noch nicht benannt":project.title;
@@ -255,25 +480,24 @@ function render(){
  guideCurrentArea(next);
 }
 function dayCount(s){return new Set((s?.points||[]).map(p=>p.day).filter(Boolean)).size}
-function stepActions(id){const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;if(id==="research")return b("openResearch","1 · Suchmaske öffnen")+b("copyPrompt","2 · Auftrag kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):"";if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):"";if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");return ""}
+function stepActions(id){const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;if(id==="research")return b("openResearch","1 · Angaben bearbeiten")+b("copyPrompt","2 · Reiseplanung kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):"";if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):"";if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");return ""}
 function currentNavigatorPayload(preferDriven=true){if(preferDriven&&project.drivenGpx?.points?.length)return routeSnapshotFromPoints(project.drivenGpx.points,project.title+" – gefahren","Gefahrene GPX aus Huschels Touren Cockpit");if(project.navigatorSnapshot?.points?.length)return project.navigatorSnapshot;if(project.plannedGpx?.points?.length)return routeSnapshotFromPoints(project.plannedGpx.points,project.title,"Kurviger-GPX aus Huschels Touren Cockpit");return null}
 function toNavigator(preferDriven=true){const snap=currentNavigatorPayload(preferDriven);if(!snap){showMessage("Noch keine Route vorhanden.","warn");return}localStorage.setItem(NAV_KEY,JSON.stringify(snap));log("Route an Tour Navigator übergeben");save();location.href=settings.navigatorUrl}
 function fromNavigator(){try{const raw=localStorage.getItem(NAV_KEY);if(!raw)throw new Error("Im Browser ist noch kein Tour-Navigator-Stand gespeichert.");const snap=JSON.parse(raw);if(!Array.isArray(snap.points)||snap.points.length<2)throw new Error("Der gespeicherte Navigator-Stand ist ungültig.");if(project.drivenGpx)project.finalNavigatorSnapshot=snap;else project.navigatorSnapshot=snap;if(snap.tourTitle&&project.title==="Neue Tour")project.title=snap.tourTitle;log("Tour-Navigator-Stand übernommen");save();showMessage(`Navigator-Stand übernommen: ${snap.points.length} Punkte, ${dayCount(snap)} Tagesziele.`,"ok")}catch(e){showMessage(e.message,"warn")}}
 function toAnimator(){const snap=project.finalNavigatorSnapshot||project.navigatorSnapshot;if(!snap?.points?.length){showMessage("Zuerst einen Tour-Navigator-Stand übernehmen.","warn");return}const pts=snap.points.filter(p=>validCoord(Number(p.lat),Number(p.lon))).map((p,i)=>({name:String(p.name||p.q||`Punkt ${i+1}`),type:String(p.type||""),lat:Number(p.lat),lon:Number(p.lon),day:p.day??null,idx:Number(p.idx||i+1),sym:String(p.sym||"")}));localStorage.setItem(ANIM_KEY,JSON.stringify({title:snap.tourTitle||project.title,source:"huschels-touren-cockpit",geometryMode:"road",exportedAt:new Date().toISOString(),points:pts}));log("Route an Tour Animator übergeben");save();location.href=settings.animatorUrl}
-function researchPrompt(){const notes=(document.getElementById("researchNotes").value||"").trim();return `Ich plane die Reise „${project.title}${project.year?" "+project.year:""}“.
+function researchPrompt(){
+ persistResearchForm();
+ const a=project.research.answers,filename=generatedGpxFilename();
+ return `${MASTER_TRAVEL_PROMPT}
 
-Hier ist meine ausgefüllte Suchmaske:
-${notes}
+AKTUELLE REISEANGABEN AUS HUSCHELS TOUREN COCKPIT
+${researchAnswersText(a)}
 
-Bitte beginne mit einer strukturierten Reise-Recherche. Die eigentliche Straßenroute erstelle ich anschließend in Kurviger.
+VERBINDLICHER GPX-DATEINAME
+${filename}
 
-Liefere mir:
-- sinnvolle Tagesetappen,
-- sehenswerte Strecken und Zwischenziele,
-- passende Übernachtungsorte,
-- Aktivitäten und kulinarische Tipps,
-- mögliche Alternativen bei Wetter oder Zeitmangel,
-- eine klare Liste der Punkte, die ich danach in Kurviger bzw. Tour Navigator übernehmen sollte.`}
+Verwende genau diesen Dateinamen für ERGEBNIS D.`;
+}
 async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(_){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}}
 function safeName(s){return String(s||"Tour").replace(/[^\p{L}\p{N}\-_]+/gu,"_").replace(/^_+|_+$/g,"")}
 function saveBlob(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
@@ -284,27 +508,22 @@ async function handleJson(file){if(!file)return;try{const data=JSON.parse(await 
 function settingsToForm(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>document.getElementById(k).value=settings[k]||"")}
 function formToSettings(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>settings[k]=(document.getElementById(k).value||"").trim());localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));render()}
 
-document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="copyPrompt"){copyText(researchPrompt());showMessage("Rechercheauftrag kopiert.","ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")location.href=settings.kurvigerUrl;if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
+document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="copyPrompt"){persistResearchForm();copyText(researchPrompt());showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")location.href=settings.kurvigerUrl;if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
 document.getElementById("nextBtn").addEventListener("click",handleNext);
 document.getElementById("plannedGpxInput").addEventListener("change",e=>handleGpx(e.target,"planned"));
 document.getElementById("drivenGpxInput").addEventListener("change",e=>handleGpx(e.target,"driven"));
 document.getElementById("jsonInput").addEventListener("change",e=>{handleJson(e.target.files?.[0]);e.target.value=""});
 document.getElementById("toNavigatorBtn").addEventListener("click",()=>toNavigator(!!project.drivenGpx));document.getElementById("fromNavigatorBtn").addEventListener("click",fromNavigator);document.getElementById("toAnimatorBtn").addEventListener("click",toAnimator);
-document.getElementById("openChatgptBtn").addEventListener("click",()=>location.href=settings.chatgptUrl);document.getElementById("copyPromptBtn").addEventListener("click",async()=>{project.research.notes=document.getElementById("researchNotes").value;save();await copyText(researchPrompt());showMessage("Rechercheauftrag kopiert.","ok")});
-document.getElementById("researchDoneBtn").addEventListener("click",()=>{project.research.notes=document.getElementById("researchNotes").value;project.research.done=true;log("Recherche erledigt");save();showMessage("Recherche als erledigt markiert.","ok")});
-document.getElementById("researchNotes").addEventListener("change",()=>{project.research.notes=document.getElementById("researchNotes").value;save()});
-document.getElementById("resetResearchMaskBtn").addEventListener("click",()=>{
-  const field=document.getElementById("researchNotes");
-  const current=String(field?.value||project.research?.notes||"").trim();
-  let preserved="";
-  if(current && !hasResearchMask(current)) preserved=current;
-  project.research.notes=preserved
-    ? RESEARCH_TEMPLATE.replace("Zusatzwünsche:","Zusatzwünsche / bisherige Notiz: "+preserved)
-    : RESEARCH_TEMPLATE;
-  save();
-  openResearchInput();
-  showMessage("Suchmaske wurde neu eingesetzt.","ok");
+document.getElementById("openChatgptBtn").addEventListener("click",()=>location.href=settings.chatgptUrl);document.getElementById("copyPromptBtn").addEventListener("click",async()=>{
+ persistResearchForm();await copyText(researchPrompt());
+ showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok");
 });
+document.getElementById("researchDoneBtn").addEventListener("click",()=>{
+ persistResearchForm();project.research.done=true;log("Recherche erledigt");save();
+ showMessage("Recherche als erledigt markiert.","ok");
+});
+document.getElementById("researchForm").addEventListener("change",persistResearchForm);
+document.getElementById("researchForm").addEventListener("input",()=>{project.research.answers=getResearchAnswers();updateFilenamePreview()});
 document.getElementById("newProjectBtn").addEventListener("click",()=>{if(confirm("Neues Projekt beginnen? Das aktuelle Projekt vorher ggf. exportieren.")){project=freshProject();save();openProjectDialog()}});
 document.getElementById("exportProjectBtn").addEventListener("click",()=>saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project));
 document.getElementById("settingsBtn").addEventListener("click",()=>{settingsToForm();document.getElementById("settingsDialog").showModal()});document.getElementById("closeSettingsDialog").addEventListener("click",()=>document.getElementById("settingsDialog").close());

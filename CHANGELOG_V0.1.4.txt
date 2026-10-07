@@ -1,0 +1,7 @@
+Huschels Touren Cockpit V0.1.4
+
+- strukturierte Antwortmaske statt frei editierbarem Prompt
+- Master-Reiseplanungs-Prompt fest im Hintergrund
+- automatische Prompt-Erzeugung aus Antworten
+- dynamischer GPX-Dateiname mit Datum/Uhrzeit + Projektname
+- Weiterverarbeitungs-Workflow im Prompt fest verankert
