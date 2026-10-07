@@ -1,0 +1,15 @@
+Huschels Touren Cockpit V0.1.5.3
+
+Neu:
+- sichtbarer Button „Projekt laden“ neben „Projekt sichern“
+- eigener Datei-Import für *_TourCockpit_Project.json
+- Prüfung, ob die gewählte JSON-Datei wirklich ein Huschels-Touren-Cockpit-Projekt ist
+- Sicherheitsabfrage vor dem Ersetzen des aktuell geöffneten Projekts
+- Import funktioniert über die Dateien-App / iCloud Drive auf iPad, iPhone und Mac
+
+Unverändert:
+- bestehende Projekt-Speicherlogik
+- GPX-Importe
+- Tour-Navigator-/Animator-Übergabe
+- Reiseführer-JSON-Import
+- Recherche- und Vorplanungslogik

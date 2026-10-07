@@ -140,7 +140,8 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <input id="plannedGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
     <input id="drivenGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
     <input id="jsonInput" class="hidden-file" type="file" accept=".json,application/json">
-    <div class="btnrow"><button id="newProjectBtn" class="btn">Neues Projekt</button><button id="exportProjectBtn" class="btn">Projekt sichern</button></div>
+    <input id="projectImportInput" class="hidden-file" type="file" accept=".json,application/json">
+    <div class="btnrow"><button id="newProjectBtn" class="btn">Neues Projekt</button><button id="importProjectBtn" class="btn">Projekt laden</button><button id="exportProjectBtn" class="btn">Projekt sichern</button></div>
 </section>
 
 <section id="workflowPanel" class="panel">
@@ -240,7 +241,7 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 </section>
 </div>
 
-<footer>Huschels Touren Cockpit · V0.1.5.2 · lokale Projektverwaltung im Browser</footer>
+<footer>Huschels Touren Cockpit · V0.1.5.3 · lokale Projektverwaltung im Browser</footer>
 </div>
 
 <dialog id="projectDialog">
@@ -649,6 +650,23 @@ function saveBlob(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{ty
 function handleNext(){const n=nextStep();if(n==="project")return openProjectDialog();if(n==="research")return openResearchInput();if(n==="preplan")return openPrePlanArea();if(n==="kurviger")return openKurviger();if(n==="planned")return document.getElementById("plannedGpxInput").click();if(n==="navigator")return toNavigator(false);if(n==="guide")return location.href=settings.navigatorUrl;if(n==="driven")return document.getElementById("drivenGpxInput").click();if(n==="finalNavigator")return toNavigator(true);if(n==="video")return toAnimator();if(n==="complete")return saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project)}
 function openProjectDialog(){document.getElementById("projectName").value=project.title==="Neue Tour"?"":project.title;document.getElementById("projectYear").value=project.year||"";document.getElementById("projectDialog").showModal()}
 async function handleGpx(input,kind){const file=input.files?.[0];if(!file)return;try{const raw=await file.text();const parsed=parseGpx(raw);const data={fileName:file.name,importedAt:new Date().toISOString(),kind:parsed.kind,rawCount:parsed.rawCount,points:parsed.points,rawText:raw};if(kind==="planned"){project.plannedGpx=data;project.navigatorSnapshot=null;project.guideJson=null;log("Verbindliche Kurviger-GPX geladen: "+file.name);showMessage(file.name+": "+parsed.points.length+" Punkte übernommen. Diese Kurviger-GPX ist jetzt die verbindliche Planungsroute.","ok")}else{project.drivenGpx=data;project.finalNavigatorSnapshot=null;log("Gefahrene GPX geladen: "+file.name);showMessage(file.name+": "+parsed.points.length+" gefahrene Punkte übernommen.","ok")}save()}catch(e){showMessage("GPX konnte nicht geladen werden: "+e.message,"warn")}input.value=""}
+async function handleProjectImport(file){
+ if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  if(data?.format!=="HuschelsTourenCockpitProject")throw new Error("Diese Datei ist kein Huschels-Touren-Cockpit-Projekt.");
+  if(!data || typeof data!=="object")throw new Error("Projektdatei ist ungültig.");
+  const title=String(data.title||"Unbenanntes Projekt");
+  const ok=confirm(`Projekt „${title}“ laden?\n\nDas aktuell im Browser geöffnete Projekt wird dadurch ersetzt. Falls nötig vorher „Projekt sichern“ verwenden.`);
+  if(!ok)return;
+  project=data;
+  ensureProject();
+  log("Cockpit-Projekt importiert: "+file.name);
+  save();
+  showMessage(`Projekt „${project.title}“ vollständig geladen.`,"ok");
+ }catch(e){showMessage("Projekt konnte nicht geladen werden: "+e.message,"warn")}
+}
+
 async function handleJson(file){if(!file)return;try{const data=JSON.parse(await file.text());if(data.format==="HuschelsTourenCockpitProject"){project=data;ensureProject();log("Cockpit-Projekt importiert");save();return showMessage("Cockpit-Projekt vollständig geladen.","ok")}if(data.format==="TourNavigatorModern-Backup"&&Array.isArray(data.points)){project.navigatorSnapshot=data;if(data.tourTitle)project.title=data.tourTitle;log("Tour-Navigator-Backup importiert");save();return showMessage("Tour-Navigator-Backup übernommen.","ok")}project.guideJson={fileName:file.name,importedAt:new Date().toISOString(),data};log("Reiseplanungs-JSON importiert");save();showMessage("JSON wurde dem Reiseführer-Schritt zugeordnet.","ok")}catch(e){showMessage("JSON konnte nicht geladen werden: "+e.message,"warn")}}
 function settingsToForm(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>document.getElementById(k).value=settings[k]||"")}
 function formToSettings(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>settings[k]=(document.getElementById(k).value||"").trim());localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));render()}
@@ -673,6 +691,8 @@ document.getElementById("researchDoneBtn").addEventListener("click",()=>{
 document.getElementById("researchForm").addEventListener("change",persistResearchForm);
 document.getElementById("researchForm").addEventListener("input",()=>{project.research.answers=getResearchAnswers();updateFilenamePreview()});
 document.getElementById("newProjectBtn").addEventListener("click",()=>{if(confirm("Neues Projekt beginnen? Das aktuelle Projekt vorher ggf. exportieren.")){project=freshProject();save();openProjectDialog()}});
+document.getElementById("importProjectBtn").addEventListener("click",()=>document.getElementById("projectImportInput").click());
+document.getElementById("projectImportInput").addEventListener("change",async e=>{const file=e.target.files?.[0];await handleProjectImport(file);e.target.value=""});
 document.getElementById("exportProjectBtn").addEventListener("click",()=>saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project));
 document.getElementById("settingsBtn").addEventListener("click",()=>{settingsToForm();document.getElementById("settingsDialog").showModal()});document.getElementById("closeSettingsDialog").addEventListener("click",()=>document.getElementById("settingsDialog").close());
 document.getElementById("saveSettingsBtn").addEventListener("click",()=>{formToSettings();document.getElementById("settingsDialog").close();showMessage("Einstellungen gespeichert.","ok")});document.getElementById("resetSettingsBtn").addEventListener("click",()=>{settings={...DEFAULT_SETTINGS};settingsToForm()});
