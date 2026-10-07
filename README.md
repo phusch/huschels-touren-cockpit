@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.0
+# Huschels Touren Cockpit V0.1.1
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -36,3 +36,11 @@ Wenn das Cockpit ebenfalls unter `phusch.github.io` veröffentlicht wird, teilt 
 
 Empfohlener Repo-Name: `huschels-touren-cockpit`
 GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
+
+
+## V0.1.1
+
+- Workflow-Kapitel in abgestuften Orange-/Creme-Farbtönen
+- Recherchefeld startet mit einer ausfüllbaren Standard-Suchmaske
+- Button-Reihenfolge in jedem Schritt chronologisch nummeriert
+- Recherche explizit als 1 Kopieren → 2 ChatGPT öffnen → 3 Recherche erledigt

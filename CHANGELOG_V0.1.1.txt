@@ -1,0 +1,7 @@
+Huschels Touren Cockpit V0.1.1
+
+- Kapitel/Kacheln in unterschiedlichen Orange-/Creme-Farbtiefen
+- Standard-Recherchemaske eingefügt
+- Bedienung konsequent entlang eines Zeitstrahls angeordnet
+- Buttons je Arbeitsschritt nummeriert
+- Recherche: 1 Rechercheauftrag kopieren -> 2 ChatGPT öffnen -> 3 Recherche erledigt
