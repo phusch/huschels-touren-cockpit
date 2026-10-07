@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Huschels Touren Cockpit V0.1.6</title>
+<title>Huschels Touren Cockpit V0.1.5</title>
 <style>
 :root{
   --bg:#08101c;--panel:#101a2a;--line:#263a56;--text:#f3f7fb;--muted:#9fb0c6;
@@ -105,11 +105,11 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 </section>
 
 <section class="hero">
-  <div><div class="eyebrow">Dein Reise-Workflow</div><h2>Du musst dir den Ablauf nicht mehr merken.</h2><p>Das Cockpit führt dich Schritt für Schritt durch eine zweistufige ChatGPT-Planung, Kurviger, Tour Navigator, Reiseführer, gefahrene Route und Tour Animator.</p></div>
+  <div><div class="eyebrow">Dein Reise-Workflow</div><h2>Du musst dir den Ablauf nicht mehr merken.</h2><p>Das Cockpit führt dich Schritt für Schritt durch Recherche, ChatGPT-Vorplanung, Kurviger, Tour Navigator, Reiseführer, gefahrene Route und Tour Animator.</p></div>
   <button id="nextBtn" class="next"><small>NÄCHSTER SCHRITT</small><strong id="nextTitle">Projekt anlegen</strong><span id="nextDesc">Tourname festlegen und loslegen ›</span></button>
 </section>
 
-<div class="timeline-note">Zeitstrahl: 1) ChatGPT plant Route, Hotels und Sehenswürdigkeiten grob. 2) Ein separater kurzer ChatGPT-Auftrag erzeugt daraus die GPX. Erst nach Kurviger wird die Route verbindlich.</div>
+<div class="timeline-note">Zeitstrahl: ChatGPT liefert zuerst nur die Vorplanung. Erst die aus Kurviger zurückgeladene GPX wird verbindlich und darf an Tour Navigator.</div>
 <section id="steps" class="steps"></section>
 
 <div class="grid">
@@ -199,7 +199,7 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   <div id="gpxFilenamePreview" class="filename-preview">GPX-Dateiname: <code>–</code></div>
 
   <div class="btnrow timeline-buttons" style="margin-top:12px">
-    <button id="copyPromptBtn" class="btn">1 · Grobplanung kopieren</button>
+    <button id="copyPromptBtn" class="btn">1 · Reiseplanung kopieren</button>
     <button id="openChatgptBtn" class="btn primary">2 · ChatGPT öffnen</button>
     <button id="researchDoneBtn" class="btn ok">3 · Recherche erledigt ✓</button>
   </div>
@@ -208,35 +208,33 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 
 <div id="prePlanArea" class="work-area">
   <div class="work-area-kicker">CHATGPT-ERGEBNIS ÜBERNEHMEN</div>
-  <h2 style="margin-top:6px">Grobplanung aus ChatGPT</h2>
-  <div class="preplan-warning"><strong>Wichtig:</strong> Diese Grobplanung ist bewusst vorläufig. Hotels, Sehenswürdigkeiten und Etappen dienen als Planungsgrundlage. Erst nach deiner Kurviger-Bearbeitung entsteht die verbindliche Route für Tour Navigator.</div>
+  <h2 style="margin-top:6px">Vorplanung aus ChatGPT</h2>
+  <div class="preplan-warning"><strong>Wichtig:</strong> Diese Reisebeschreibung ist nur ein Entwurf vor Kurviger. Sie wird im Cockpit archiviert, aber weder an Tour Navigator noch an den späteren Reiseführer übergeben. Verbindlich wird erst die nach Kurviger zurückgeladene GPX.</div>
 
-  <label for="prePlanDescription">Grobplanung aus ChatGPT</label>
-  <textarea id="prePlanDescription" placeholder="Hier Ergebnis A/B/C der Grobplanung aus ChatGPT einfügen."></textarea>
+  <label for="prePlanDescription">Vorläufige Reisebeschreibung aus ChatGPT</label>
+  <textarea id="prePlanDescription" placeholder="Hier Ergebnis A/B/C aus ChatGPT einfügen – ohne den GPX-XML-Codeblock."></textarea>
 
   <input id="prePlanTextInput" class="hidden-file" type="file" accept=".txt,.md,text/plain,text/markdown">
   <input id="chatgptGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
 
   <div class="preplan-status">
-    <div class="preplan-chip">Grobplanung<strong id="prePlanDescriptionStatus">noch nicht gespeichert</strong></div>
+    <div class="preplan-chip">Reisebeschreibung<strong id="prePlanDescriptionStatus">noch nicht gespeichert</strong></div>
     <div class="preplan-chip">ChatGPT-GPX<strong id="chatgptGpxStatus">noch nicht geladen</strong></div>
   </div>
 
   <div class="btnrow timeline-buttons">
-    <button id="savePrePlanBtn" class="btn">1 · Grobplanung speichern</button>
+    <button id="savePrePlanBtn" class="btn">1 · Beschreibung speichern</button>
     <button id="loadPrePlanTextBtn" class="btn">Textdatei laden</button>
-    <button id="copyGpxPromptBtn" class="btn primary">2 · GPX-Auftrag kopieren</button>
-    <button id="openChatgptGpxBtn" class="btn primary">3 · ChatGPT öffnen</button>
-    <button id="loadChatgptGpxBtn" class="btn ok">4 · erzeugte GPX übernehmen</button>
+    <button id="loadChatgptGpxBtn" class="btn primary">2 · ChatGPT-GPX übernehmen</button>
     <button id="downloadChatgptGpxBtn" class="btn">GPX erneut herunterladen</button>
-    <button id="openKurvigerFromPrePlanBtn" class="btn ok">5 · In Kurviger weiter</button>
+    <button id="openKurvigerFromPrePlanBtn" class="btn ok">3 · In Kurviger weiter</button>
   </div>
 </div>
 
 </section>
 </div>
 
-<footer>Huschels Touren Cockpit · V0.1.6 · lokale Projektverwaltung im Browser</footer>
+<footer>Huschels Touren Cockpit · V0.1.5 · lokale Projektverwaltung im Browser</footer>
 </div>
 
 <dialog id="projectDialog">
@@ -263,171 +261,117 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 const APP_KEY="huschelsTourenCockpit.project.v1", SETTINGS_KEY="huschelsTourenCockpit.settings.v1";
 const NAV_KEY="tourNavigatorModern.lastRoute.v1", ANIM_KEY="tourNavigator.animationRoute";
 const DEFAULT_SETTINGS={navigatorUrl:"https://phusch.github.io/tour-navigator-modern/",animatorUrl:"https://phusch.github.io/tour-animator/",kurvigerUrl:"https://kurviger.de/de",chatgptUrl:"https://chatgpt.com/",guideUrl:""};
-const MASTER_TRAVEL_PROMPT=`Du bist mein persönlicher Experte für Reiseplanung, Motorradtouren, Routenrecherche und strukturierte Grobplanung für meinen Reise-Workflow.
+const MASTER_TRAVEL_PROMPT=`Du bist mein persönlicher Experte für Reiseplanung, Motorradtouren, Routenrecherche, GPX-Vorbereitung und strukturierte Weiterverarbeitung meiner Reisedaten.
 
-AUFGABE – STUFE 1: GROBPLANUNG
-Erstelle aus meinen Angaben eine belastbare, aber noch provisorische Reiseplanung. In dieser Stufe wird NOCH KEINE GPX-Datei erzeugt.
+ZIEL
+Erstelle aus meinen Angaben eine vollständige Reiseplanung und eine GPX-Datei für meinen festen Workflow.
 
-MEIN SPÄTERER WORKFLOW
-1. Grobplanung mit ChatGPT
-2. Übernahme der Grobplanung ins Huschels Touren Cockpit
-3. zweiter ChatGPT-Auftrag nur zur GPX-Erzeugung
-4. Import der GPX in Kurviger
-5. fahrerische Feinplanung in Kurviger
-6. Export der bearbeiteten GPX
-7. Import in Tour Navigator Modern
-8. Tourpunkte/Tagesziele final bearbeiten
-9. strukturierte Reiseplanungs-JSON erzeugen
-10. Wildhogs-Reiseführer-App erstellen
-11. nach der Reise gefahrene GPX übernehmen
-12. Tour Animator
+MEIN WORKFLOW
+1. Recherche/Grobplanung mit ChatGPT
+2. GPX-Erstellung durch ChatGPT
+3. Import der GPX in Kurviger
+4. fahrerische Feinplanung in Kurviger
+5. Export der bearbeiteten GPX
+6. Import in Tour Navigator Modern
+7. Tourpunkte bearbeiten und Tagesziele N1, N2, N3 ... festlegen bzw. prüfen
+8. Export einer strukturierten Reiseplanungs-JSON
+9. Erstellung der Wildhogs-Reiseführer-App
+10. nach der Reise Import der tatsächlich gefahrenen GPX in Tour Navigator
+11. Übergabe des finalen Navigator-Stands an den Tour Animator
 
-PLANUNGSREGELN
+FESTE PLANUNGSREGELN
 - Erlaubte Fortbewegungsmittel: Motorrad, Auto, Wohnmobil, Fahrrad, Boot oder ausdrücklich genannte andere Art.
 - Bei Motorrad: kurvige, landschaftlich schöne Nebenstraßen bevorzugen.
 - Autobahn bei Motorrad möglichst vermeiden.
 - Große Hauptstraßen nur verwenden, wenn sinnvoll.
-- Schotter/Offroad bei Motorrad grundsätzlich vermeiden, sofern nicht anders gewünscht.
+- Schotter/Offroad bei Motorrad grundsätzlich vermeiden, sofern nicht ausdrücklich anders gewünscht.
 - Fahrerisch schöne Strecke und Sehenswürdigkeiten nach meiner gewählten Priorität kombinieren.
 - Für Highlights höchstens den von mir gewählten Umweg akzeptieren.
 - Keine unnötigen Hin-und-zurück-Stiche.
-- Tageskilometer und maximale Fahrzeit beachten.
+- Übernachtung entsprechend meiner Auswahl; mein Budget beachten.
+- Bei Motorrad ist Parkplatz direkt an der Unterkunft wichtig; Garage/überdacht ist Pluspunkt.
+- Kulinarik ist fester Bestandteil: regionale Küche, Bier, Wein, besondere/ausgefallene Gasthäuser oder Locations entsprechend meiner Auswahl.
+- Stopps nach Region und Wertigkeit; keine künstliche feste Anzahl.
+- Aktivitäten gemäß meiner Auswahl berücksichtigen.
+- Soweit möglich saisonale Sperrungen, Passöffnungen, Fahrverbote, Maut, Fähren, Zufahrtsbeschränkungen und Öffnungszeiten prüfen.
+- Unsichere Angaben klar kennzeichnen.
+- Meine Vorgaben niemals stillschweigend verändern.
 
-HOTELS / ÜBERNACHTUNG BEREITS IN DER GROBPLANUNG
-Plane bereits mögliche Hotels, Pensionen oder Gasthöfe für sinnvolle Übernachtungsorte ein.
-Dabei beachten:
-- gewünschte Unterkunftsart
-- genanntes Budget pro Person/Nacht
-- bei Motorrad möglichst Parkplatz direkt an der Unterkunft
-- Garage oder überdachter Stellplatz als Pluspunkt
-- charaktervolle regionale Unterkunft bevorzugen, wenn sinnvoll
-- Unterkünfte ausdrücklich als VORSCHLÄGE kennzeichnen, weil die Route später in Kurviger noch geändert werden kann
+GPX-STRATEGIE FÜR KURVIGER
+Die GPX soll NICHT jede Straßenkurve abbilden. Kurviger berechnet anschließend die tatsächliche Straßenführung.
+Setze nur entscheidende Navigationspunkte:
+START
+SHAPING
+ZWISCHENZIEL
+TAGESZIEL
+ZIEL
 
-SEHENSWÜRDIGKEITEN / AKTIVITÄTEN BEREITS IN DER GROBPLANUNG
-Plane bereits sinnvolle Sehenswürdigkeiten und Aktivitäten entlang der Route ein.
-Berücksichtige je nach Auswahl:
-- Aussichtspunkte
-- Technik/Museen
-- historische Orte
-- Natur
-- kurze Wanderungen
-- Städte / besondere Ortskerne
-- lokale Besonderheiten
-- ausgefallene Ziele
-Stopps nicht künstlich auf eine feste Zahl bringen. Qualität und Region entscheiden.
-
-KULINARIK
-Kulinarik ist fester Bestandteil:
-- regionale Küche
-- regionale Biere
-- Wein
-- besondere oder ausgefallene Gasthäuser / Locations
-- interessante Cafés
-Auch diese Empfehlungen sind in der Grobplanung noch vorläufig.
-
-AKTUALITÄT / PLAUSIBILITÄT
-Soweit möglich berücksichtigen:
-- saisonale Sperrungen
-- Passöffnungen
-- Fahrverbote
-- Maut
-- Fähren
-- Zufahrtsbeschränkungen
-- grob relevante Öffnungszeiten
-Unsicherheiten klar markieren. Nicht in ausufernde Detailrecherche abgleiten.
-
-AUSGABE – STUFE 1
-ERGEBNIS A – REISEÜBERSICHT
-Kurze Gesamtbeschreibung, Charakter und Highlights.
-
-ERGEBNIS B – TAGESETAPPEN
-Für jeden Tag:
-- Start → Tagesziel
-- ungefähre Kilometer
-- ungefähre reine Fahrzeit
-- Charakter der Etappe
-- wichtige Straßen / Regionen
-- sehenswerte Zwischenziele
-- mögliche Aktivitäten
-- mögliche Hotels/Pensionen/Gasthöfe
-- Kulinarik
-- wichtige Hinweise
-- bei Bedarf Kurz-/Schlechtwettervariante
-
-ERGEBNIS C – VORLÄUFIGE NAVIGATIONSPUNKTE
-Nur als Klartext-Tabelle:
-Nr. | Tag | Rolle | Name | Ort/Region | kurze Begründung
-
-Rollen:
-start
-shaping
-via
-day_destination
-destination
-
-WICHTIG
-- Noch KEINE Koordinaten recherchieren, wenn sie nicht sicher erforderlich sind.
-- Noch KEINE GPX erzeugen.
-- Noch KEIN XML ausgeben.
-- Tagesziele bereits eindeutig mit N1, N2, N3 ... benennen.
-- Die Planung ist ausdrücklich provisorisch und wird nach Kurviger neu bewertet.
-`;
-
-const GPX_STAGE2_PROMPT=`Du bist mein Spezialist für GPX-Erstellung für Kurviger.
-
-AUFGABE – STUFE 2
-Erzeuge ausschließlich aus der unten eingefügten, bereits bestätigten Grobplanung eine schlanke, Kurviger-taugliche GPX-Datei.
-
-WICHTIG
-- Keine neue Reiseplanung erfinden.
-- Keine Hotels oder Sehenswürdigkeiten neu recherchieren.
-- Keine langen Reisebeschreibungen erzeugen.
-- Verwende nur die bestätigte Grobplanung und deren Reihenfolge.
-- Recherchiere nur die notwendigen Koordinaten der Navigationspunkte.
-- Die GPX soll NICHT jede Straßenkurve abbilden.
-- Kurviger berechnet anschließend die tatsächliche Straßenführung.
-
-NAVIGATIONSPUNKTE
-Nutze nur:
-start
-shaping
-via
-day_destination
-destination
-
+Shaping-Punkte lenken Kurviger auf gewünschte Strecken, Pässe oder Regionen.
+Zwischenziele sind echte anzufahrende Orte.
 Tagesziele müssen eindeutig heißen:
 N1 Name
 N2 Name
 N3 Name
 usw.
+Diese Namen bleiben später in Tour Navigator, Reiseführer und Tour Animator stabil.
 
-Shaping-Punkte nur setzen, wenn sie nötig sind, um Kurviger auf einen gewünschten Pass, Straßenabschnitt oder durch eine bestimmte Region zu führen.
+NAVIGATIONSPUNKTE
+Für jeden Punkt angeben:
+Nr. | Tag | Rolle | Name | Breitengrad | Längengrad | Grund
+
+Bei Rolle ausschließlich verwenden:
+start
+shaping
+via
+day_destination
+destination
+
+Keine generischen Namen wie Waypoint, Shaping Point oder Punkt 1.
 
 PLAUSIBILITÄTSPRÜFUNG
 Vor Ausgabe prüfen:
-- richtige geografische Reihenfolge
+- geografisch richtige Reihenfolge
 - keine unnötigen Rückfahrten
 - Tagesziele chronologisch korrekt
-- Koordinaten passen zum Punkt
-- nicht zu viele Punkte
-- genügend Punkte, damit Kurviger die gewünschte Grobroute erkennt
+- Koordinaten passend
+- Tagesetappen realistisch
+- Kilometersummen/Fahrzeiten plausibel
+- genügend Punkte für Kurviger, aber nicht unnötig detailliert
 
 AUSGABE
-ERGEBNIS A – NAVIGATIONSPUNKTE
-Nr. | Tag | Rolle | Name | Breitengrad | Längengrad
+ERGEBNIS A – REISEÜBERSICHT
+Gesamtbeschreibung, Charakter, Highlights, wichtige Hinweise.
 
-ERGEBNIS B – GPX-DATEI
+ERGEBNIS B – DETAILLIERTE TAGESETAPPEN
+Je Tag:
+Start → Tagesziel
+Kilometer
+reine Fahrzeit
+Charakter der Etappe
+wichtige Strecken
+Zwischenziele/Aussichtspunkte
+Aktivitäten
+Kulinarik
+Übernachtungshinweis
+Besonderheiten
+bei Bedarf Kurz-/Schlechtwettervariante
+
+ERGEBNIS C – NAVIGATIONSPUNKTE / ÜBERGABEDATEN
+Tabelle in exakter Fahrreihenfolge:
+Nr. | Tag | Rolle | Name | Breitengrad | Längengrad | Grund
+
+ERGEBNIS D – GPX-DATEI
 GPX 1.1 als Route mit <rte> und geordneten <rtept>-Elementen.
 Komplette GPX in EINEM XML-Codeblock.
 Direkt darüber exakt den vorgegebenen Dateinamen nennen.
+Für Kurviger importierbar.
+Keine unnötig detaillierte Trackaufzeichnung.
 
 DATEINAMEN-SCHEMA
 YYYY-MM-DD_HHMM_Projektname.gpx
 
-WICHTIG FÜR MEINEN WORKFLOW
-Die erzeugte GPX wird als nächstes in Kurviger importiert und dort fahrerisch verändert. Erst die danach aus Kurviger exportierte GPX wird zur verbindlichen Basis für Tour Navigator.
-`;
-
+WICHTIG
+Die Namen der Tagesziele und wichtigen Zwischenziele müssen über den gesamten Workflow stabil bleiben.`;
 const RESEARCH_DEFAULTS={
 days:"8",mode:"Motorrad",start:"",region:"",tripType:"Rundreise",end:"",travelTime:"",travelers:"",
 dailyKm:"",driveHours:"",priority:"ausgewogen",detour:"20 km",
@@ -440,8 +384,8 @@ culinary:["regionale Küche","regionale Biere","Wein","besondere und ausgefallen
 avoid:"Schotter / Offroad; unnötige Autobahn; langweilige Hauptverkehrsachsen",extra:""
 };
 const steps=[
-{id:"research",n:1,title:"Grobplanung",text:"Route, Tagesetappen, mögliche Hotels und Sehenswürdigkeiten mit ChatGPT planen – noch ohne GPX."},
-{id:"preplan",n:2,title:"GPX erzeugen",text:"Bestätigte Grobplanung übernehmen und daraus in einem zweiten ChatGPT-Schritt nur die Kurviger-GPX erzeugen."},
+{id:"research",n:1,title:"Recherche",text:"Reiseangaben erfassen und mit dem festen Master-Prompt in ChatGPT planen."},
+{id:"preplan",n:2,title:"ChatGPT-Vorplanung",text:"Provisorische Reisebeschreibung und erste GPX im Cockpit archivieren."},
 {id:"kurviger",n:3,title:"Route in Kurviger",text:"Die ChatGPT-GPX importieren und die tatsächliche Straßenführung fahrerisch ausarbeiten."},
 {id:"planned",n:4,title:"Kurviger-GPX zurück",text:"Die aus Kurviger exportierte GPX wird zur verbindlichen Planungsroute."},
 {id:"navigator",n:5,title:"Tour bearbeiten",text:"Verbindliche Route bearbeiten und Tagesziele N1… final festlegen."},
@@ -493,9 +437,9 @@ function phaseState(){ensureProject();return {
 function nextStep(){const s=phaseState();if(project.title==="Neue Tour")return "project";if(!s.research)return "research";if(!s.preplan)return "preplan";if(!s.kurviger)return "kurviger";if(!s.planned)return "planned";if(!s.navigator)return "navigator";if(!s.guide)return "guide";if(!s.driven)return "driven";if(!project.finalNavigatorSnapshot)return "finalNavigator";if(!s.video)return "video";return "complete"}
 function phaseText(id){return {
 project:["Projekt anlegen","Tourname festlegen und loslegen"],
-research:["Grobplanung starten","Reiseangaben erfassen und die erste ChatGPT-Planung erzeugen"],
-preplan:["Grobplanung übernehmen & GPX erzeugen","Grobplanung speichern und daraus im zweiten ChatGPT-Schritt die GPX erzeugen"],
-kurviger:["Route in Kurviger ausarbeiten","Die erzeugte GPX in Kurviger importieren und fahrerisch verändern"],
+research:["Recherche starten","Reiseangaben erfassen und ChatGPT-Planung erzeugen"],
+preplan:["ChatGPT-Ergebnis übernehmen","Vorläufige Beschreibung und erste GPX im Cockpit speichern"],
+kurviger:["Route in Kurviger ausarbeiten","ChatGPT-GPX in Kurviger importieren und fahrerisch verändern"],
 planned:["Kurviger-GPX zurückladen","Die bearbeitete GPX wird jetzt verbindliche Planungsgrundlage"],
 navigator:["Tour Navigator öffnen","Nur die Kurviger-GPX an Tour Navigator übergeben"],
 guide:["Reiseführer vorbereiten","Aus dem finalen Navigator-Stand die Reiseplanungs-JSON erzeugen"],
@@ -594,8 +538,6 @@ function render(){
  document.getElementById("prePlanDescriptionStatus").textContent=project.prePlan?.description?.trim()?"Entwurf gespeichert":"noch nicht gespeichert";
  document.getElementById("chatgptGpxStatus").textContent=project.chatgptGpx?`${project.chatgptGpx.fileName} · ${project.chatgptGpx.points.length} Punkte`:"noch nicht geladen";
  document.getElementById("downloadChatgptGpxBtn").disabled=!project.chatgptGpx?.rawText;
- document.getElementById("copyGpxPromptBtn").disabled=!project.prePlan?.description?.trim();
- document.getElementById("openChatgptGpxBtn").disabled=!project.prePlan?.description?.trim();
  document.getElementById("openKurvigerFromPrePlanBtn").disabled=!(project.prePlan?.description?.trim()&&project.chatgptGpx?.points?.length);
  const current={project:null,research:"research",preplan:"preplan",kurviger:"kurviger",planned:"planned",navigator:"navigator",guide:"guide",driven:"driven",finalNavigator:"driven",video:"video",complete:null}[next];
  document.getElementById("steps").innerHTML=steps.map(st=>`<article class="step ${state[st.id]?"done":""} ${current===st.id?"current":""}"><span class="check">${state[st.id]?"✓":current===st.id?"→":"○"}</span><div class="num">SCHRITT ${st.n}</div><h3>${st.title}</h3><p>${st.text}</p><div class="step-actions">${stepActions(st.id)}</div></article>`).join("");
@@ -613,8 +555,8 @@ function render(){
 function dayCount(s){return new Set((s?.points||[]).map(p=>p.day).filter(Boolean)).size}
 function stepActions(id){
  const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;
- if(id==="research")return b("openResearch","1 · Angaben bearbeiten")+b("copyPrompt","2 · Grobplanung kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");
- if(id==="preplan")return b("openPrePlan","1 · Grobplanung übernehmen")+b("copyGpxPrompt","2 · GPX-Auftrag kopieren","mini primary")+b("loadChatgptGpx","4 · GPX laden","mini ok");
+ if(id==="research")return b("openResearch","1 · Angaben bearbeiten")+b("copyPrompt","2 · Reiseplanung kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");
+ if(id==="preplan")return b("openPrePlan","1 · Ergebnis übernehmen")+b("loadChatgptGpx","2 · GPX laden","mini primary");
  if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");
  if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):b("loadPlannedGpx","1 · Kurviger-GPX laden","mini primary");
  if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");
@@ -634,9 +576,9 @@ function savePrePlanDescription(){
  ensureProject();
  project.prePlan.description=(document.getElementById("prePlanDescription")?.value||"").trim();
  project.prePlan.savedAt=project.prePlan.description?new Date().toISOString():null;
- log("ChatGPT-Grobplanung gespeichert");
+ log("Vorläufige ChatGPT-Reisebeschreibung gespeichert");
  save();
- showMessage("Grobplanung gespeichert. Sie bleibt vorläufig und dient jetzt als Grundlage für den separaten GPX-Schritt.","ok");
+ showMessage("Vorläufige Reisebeschreibung gespeichert. Sie bleibt nur Archiv/Vorplanung und wird nicht an Tour Navigator übergeben.","ok");
 }
 async function handleChatgptGpx(file){
  if(!file)return;
@@ -644,9 +586,9 @@ async function handleChatgptGpx(file){
   const raw=await file.text();
   const parsed=parseGpx(raw);
   project.chatgptGpx={fileName:file.name,importedAt:new Date().toISOString(),kind:parsed.kind,rawCount:parsed.rawCount,points:parsed.points,rawText:raw};
-  log("ChatGPT-GPX aus Stufe 2 geladen: "+file.name);
+  log("Vorläufige ChatGPT-GPX geladen: "+file.name);
   save();
-  showMessage(file.name+": "+parsed.points.length+" Punkte als ChatGPT-GPX archiviert. Als Nächstes in Kurviger bearbeiten; noch nicht für Tour Navigator verwenden.","ok");
+  showMessage(file.name+": "+parsed.points.length+" Punkte als vorläufige ChatGPT-GPX archiviert. Noch nicht für Tour Navigator verwenden.","ok");
  }catch(e){showMessage("ChatGPT-GPX konnte nicht geladen werden: "+e.message,"warn")}
 }
 function downloadChatgptGpx(){
@@ -669,26 +611,16 @@ function fromNavigator(){try{const raw=localStorage.getItem(NAV_KEY);if(!raw)thr
 function toAnimator(){const snap=project.finalNavigatorSnapshot||project.navigatorSnapshot;if(!snap?.points?.length){showMessage("Zuerst einen Tour-Navigator-Stand übernehmen.","warn");return}const pts=snap.points.filter(p=>validCoord(Number(p.lat),Number(p.lon))).map((p,i)=>({name:String(p.name||p.q||`Punkt ${i+1}`),type:String(p.type||""),lat:Number(p.lat),lon:Number(p.lon),day:p.day??null,idx:Number(p.idx||i+1),sym:String(p.sym||"")}));localStorage.setItem(ANIM_KEY,JSON.stringify({title:snap.tourTitle||project.title,source:"huschels-touren-cockpit",geometryMode:"road",exportedAt:new Date().toISOString(),points:pts}));log("Route an Tour Animator übergeben");save();location.href=settings.animatorUrl}
 function researchPrompt(){
  persistResearchForm();
- const a=project.research.answers;
+ const a=project.research.answers,filename=generatedGpxFilename();
  return `${MASTER_TRAVEL_PROMPT}
 
 AKTUELLE REISEANGABEN AUS HUSCHELS TOUREN COCKPIT
 ${researchAnswersText(a)}
 
-Erzeuge jetzt ausschließlich STUFE 1 – GROBPLANUNG. Noch keine GPX und kein XML.`;
-}
-function gpxStage2Prompt(){
- const plan=String(project.prePlan?.description||"").trim();
- const filename=generatedGpxFilename();
- return `${GPX_STAGE2_PROMPT}
-
-BESTÄTIGTE GROBPLANUNG AUS HUSCHELS TOUREN COCKPIT
-${plan}
-
 VERBINDLICHER GPX-DATEINAME
 ${filename}
 
-Verwende genau diesen Dateinamen für ERGEBNIS B.`;
+Verwende genau diesen Dateinamen für ERGEBNIS D.`;
 }
 async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(_){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}}
 function safeName(s){return String(s||"Tour").replace(/[^\p{L}\p{N}\-_]+/gu,"_").replace(/^_+|_+$/g,"")}
@@ -700,20 +632,11 @@ async function handleJson(file){if(!file)return;try{const data=JSON.parse(await 
 function settingsToForm(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>document.getElementById(k).value=settings[k]||"")}
 function formToSettings(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>settings[k]=(document.getElementById(k).value||"").trim());localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));render()}
 
-document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="openPrePlan"){openPrePlanArea()}if(x==="copyGpxPrompt"){copyText(gpxStage2Prompt());showMessage(`GPX-Auftrag kopiert. Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="loadChatgptGpx"){document.getElementById("chatgptGpxInput").click()}if(x==="loadPlannedGpx"){document.getElementById("plannedGpxInput").click()}if(x==="loadDrivenGpx"){document.getElementById("drivenGpxInput").click()}if(x==="copyPrompt"){persistResearchForm();copyText(researchPrompt());showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")openKurviger();if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
+document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="openPrePlan"){openPrePlanArea()}if(x==="loadChatgptGpx"){document.getElementById("chatgptGpxInput").click()}if(x==="loadPlannedGpx"){document.getElementById("plannedGpxInput").click()}if(x==="loadDrivenGpx"){document.getElementById("drivenGpxInput").click()}if(x==="copyPrompt"){persistResearchForm();copyText(researchPrompt());showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")openKurviger();if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
 document.getElementById("nextBtn").addEventListener("click",handleNext);
 document.getElementById("savePrePlanBtn").addEventListener("click",savePrePlanDescription);
 document.getElementById("loadPrePlanTextBtn").addEventListener("click",()=>document.getElementById("prePlanTextInput").click());
 document.getElementById("prePlanTextInput").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{document.getElementById("prePlanDescription").value=await file.text();savePrePlanDescription()}catch(err){showMessage("Textdatei konnte nicht gelesen werden: "+err.message,"warn")}e.target.value=""});
-document.getElementById("copyGpxPromptBtn").addEventListener("click",async()=>{
- if(!project.prePlan?.description?.trim()){showMessage("Zuerst die Grobplanung speichern.","warn");return}
- await copyText(gpxStage2Prompt());
- showMessage(`GPX-Auftrag kopiert. Dateiname: ${generatedGpxFilename()}`,"ok");
-});
-document.getElementById("openChatgptGpxBtn").addEventListener("click",()=>{
- if(!project.prePlan?.description?.trim()){showMessage("Zuerst die Grobplanung speichern.","warn");return}
- location.href=settings.chatgptUrl;
-});
 document.getElementById("loadChatgptGpxBtn").addEventListener("click",()=>document.getElementById("chatgptGpxInput").click());
 document.getElementById("chatgptGpxInput").addEventListener("change",async e=>{await handleChatgptGpx(e.target.files?.[0]);e.target.value=""});
 document.getElementById("downloadChatgptGpxBtn").addEventListener("click",downloadChatgptGpx);
