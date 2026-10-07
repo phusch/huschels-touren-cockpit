@@ -1,0 +1,10 @@
+Huschels Touren Cockpit V0.1.0
+
+- erster funktionsfähiger Workflow-Überbau
+- Projektstatus + nächster Arbeitsschritt
+- GPX geplant/gefahren importierbar
+- direkte Übergabe zu Tour Navigator Modern
+- Navigator-Stand kann zurückgeholt werden
+- direkte Übergabe zu Tour Animator
+- JSON-Projektsicherung
+- konfigurierbare App-Links
