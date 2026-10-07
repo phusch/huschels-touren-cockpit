@@ -1,0 +1,8 @@
+Huschels Touren Cockpit V0.1.5
+
+- ChatGPT-Vorplanung als eigener Workflow-Schritt
+- provisorische Reisebeschreibung separat archiviert
+- provisorische ChatGPT-GPX separat archiviert
+- Vorplanung wird nicht an Tour Navigator übergeben
+- Kurviger-GPX wird ausdrücklich zur verbindlichen Planungsbasis
+- neue Kurviger-GPX setzt nachgelagerte Navigator/Reiseführer-Stände zurück

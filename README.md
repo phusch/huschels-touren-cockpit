@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.4
+# Huschels Touren Cockpit V0.1.5
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -71,3 +71,15 @@ GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
 - dynamischer GPX-Dateiname nach Schema YYYY-MM-DD_HHMM_Projektname.gpx
 - kompletter Workflow ChatGPT → Kurviger → Tour Navigator → Reiseplanungs-JSON → Wildhogs Reiseführer → gefahrene GPX → Tour Animator im Prompt verankert
 - bestehende alte Freitext-Recherche wird bei Migration als Zusatzwunsch übernommen
+
+## V0.1.5
+
+- neuer Schritt „ChatGPT-Vorplanung“
+- vorläufige ChatGPT-Reisebeschreibung separat im Cockpit archivieren
+- vorläufige ChatGPT-GPX separat speichern
+- diese Vorplanung wird ausdrücklich nicht an Tour Navigator übergeben
+- Kurviger wird für die fahrerische Feinplanung aus diesem Zwischenschritt geöffnet
+- erst die aus Kurviger zurückgeladene GPX wird zur verbindlichen Planungsroute
+- nur diese Kurviger-GPX wird an Tour Navigator weitergegeben
+- ChatGPT-GPX kann aus dem Cockpit erneut heruntergeladen werden
+- Workflow jetzt in 8 klar getrennten Schritten

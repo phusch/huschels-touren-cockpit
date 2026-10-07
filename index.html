@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Huschels Touren Cockpit V0.1.4</title>
+<title>Huschels Touren Cockpit V0.1.5</title>
 <style>
 :root{
   --bg:#08101c;--panel:#101a2a;--line:#263a56;--text:#f3f7fb;--muted:#9fb0c6;
@@ -81,6 +81,15 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 .filename-preview code{color:#ffd8ad}
 @media(max-width:700px){.research-form{grid-template-columns:1fr}.form-field.full{grid-column:auto}}
 
+
+.preplan-warning{background:#fff1d8;color:#5e4029;border:1px solid #e8bd83;border-radius:13px;padding:11px 12px;font-size:13px;line-height:1.45;margin-bottom:12px}
+.preplan-status{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.preplan-chip{background:#0e1b2a;border:1px solid #3b5168;border-radius:12px;padding:10px 11px;font-size:13px;color:#dbe7f3}
+.preplan-chip strong{display:block;color:#fff;margin-top:3px}
+#prePlanDescription{min-height:180px;line-height:1.5}
+.hidden-file{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+@media(max-width:700px){.preplan-status{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -96,23 +105,25 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
 </section>
 
 <section class="hero">
-  <div><div class="eyebrow">Dein Reise-Workflow</div><h2>Du musst dir den Ablauf nicht mehr merken.</h2><p>Das Cockpit führt dich Schritt für Schritt durch Recherche, Kurviger, Tour Navigator, Reiseführer, gefahrene Route und Tour Animator.</p></div>
+  <div><div class="eyebrow">Dein Reise-Workflow</div><h2>Du musst dir den Ablauf nicht mehr merken.</h2><p>Das Cockpit führt dich Schritt für Schritt durch Recherche, ChatGPT-Vorplanung, Kurviger, Tour Navigator, Reiseführer, gefahrene Route und Tour Animator.</p></div>
   <button id="nextBtn" class="next"><small>NÄCHSTER SCHRITT</small><strong id="nextTitle">Projekt anlegen</strong><span id="nextDesc">Tourname festlegen und loslegen ›</span></button>
 </section>
 
-<div class="timeline-note">Zeitstrahl: Der orange markierte Bereich zeigt dir immer den nächsten Arbeitsschritt. In der Recherche beantwortest du nur feste Fragen.</div>
+<div class="timeline-note">Zeitstrahl: ChatGPT liefert zuerst nur die Vorplanung. Erst die aus Kurviger zurückgeladene GPX wird verbindlich und darf an Tour Navigator.</div>
 <section id="steps" class="steps"></section>
 
 <div class="grid">
 <section id="filesPanel" class="panel">
   <h2>Projekt & Dateien</h2>
   <div class="data-row"><span>Projekt</span><strong id="sumProject">–</strong></div>
-  <div class="data-row"><span>Geplante GPX</span><strong id="sumPlanned">–</strong></div>
+  <div class="data-row"><span>ChatGPT Vorplanung</span><strong id="sumPrePlan">–</strong></div>
+  <div class="data-row"><span>ChatGPT GPX (vorläufig)</span><strong id="sumChatgptGpx">–</strong></div>
+  <div class="data-row"><span>Kurviger GPX (verbindlich)</span><strong id="sumPlanned">–</strong></div>
   <div class="data-row"><span>Tour Navigator</span><strong id="sumNavigator">–</strong></div>
   <div class="data-row"><span>Reiseführer JSON</span><strong id="sumGuide">–</strong></div>
   <div class="data-row"><span>Gefahrene GPX</span><strong id="sumDriven">–</strong></div>
 
-  <div class="filebox"><strong>GPX aus Kurviger übernehmen</strong><small>Die GPX wird eingelesen und für Tour Navigator vorbereitet.</small><input id="plannedGpxInput" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml"></div>
+  <div class="filebox"><strong>Kurviger-GPX übernehmen · verbindliche Planungsroute</strong><small>Erst diese nach Kurviger bearbeitete GPX darf an Tour Navigator weitergegeben werden.</small><input id="plannedGpxInput" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml"></div>
   <div class="filebox"><strong>Gefahrene GPX übernehmen</strong><small>Nach der Reise: tatsächlichen Track laden und an Tour Navigator übergeben.</small><input id="drivenGpxInput" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml"></div>
   <div class="filebox"><strong>JSON einlesen</strong><small>Tour-Navigator-Backup, ChatGPT-Reiseplanungs-JSON oder Cockpit-Projektdatei.</small><input id="jsonInput" type="file" accept=".json,application/json"></div>
 
@@ -194,10 +205,36 @@ footer{text-align:center;color:#74879e;font-size:12px;margin-top:28px}
   </div>
   <div id="message" class="notice hidden" style="margin-top:14px"></div>
 </div>
+
+<div id="prePlanArea" class="work-area">
+  <div class="work-area-kicker">CHATGPT-ERGEBNIS ÜBERNEHMEN</div>
+  <h2 style="margin-top:6px">Vorplanung aus ChatGPT</h2>
+  <div class="preplan-warning"><strong>Wichtig:</strong> Diese Reisebeschreibung ist nur ein Entwurf vor Kurviger. Sie wird im Cockpit archiviert, aber weder an Tour Navigator noch an den späteren Reiseführer übergeben. Verbindlich wird erst die nach Kurviger zurückgeladene GPX.</div>
+
+  <label for="prePlanDescription">Vorläufige Reisebeschreibung aus ChatGPT</label>
+  <textarea id="prePlanDescription" placeholder="Hier Ergebnis A/B/C aus ChatGPT einfügen – ohne den GPX-XML-Codeblock."></textarea>
+
+  <input id="prePlanTextInput" class="hidden-file" type="file" accept=".txt,.md,text/plain,text/markdown">
+  <input id="chatgptGpxInput" class="hidden-file" type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml">
+
+  <div class="preplan-status">
+    <div class="preplan-chip">Reisebeschreibung<strong id="prePlanDescriptionStatus">noch nicht gespeichert</strong></div>
+    <div class="preplan-chip">ChatGPT-GPX<strong id="chatgptGpxStatus">noch nicht geladen</strong></div>
+  </div>
+
+  <div class="btnrow timeline-buttons">
+    <button id="savePrePlanBtn" class="btn">1 · Beschreibung speichern</button>
+    <button id="loadPrePlanTextBtn" class="btn">Textdatei laden</button>
+    <button id="loadChatgptGpxBtn" class="btn primary">2 · ChatGPT-GPX übernehmen</button>
+    <button id="downloadChatgptGpxBtn" class="btn">GPX erneut herunterladen</button>
+    <button id="openKurvigerFromPrePlanBtn" class="btn ok">3 · In Kurviger weiter</button>
+  </div>
+</div>
+
 </section>
 </div>
 
-<footer>Huschels Touren Cockpit · V0.1.4 · lokale Projektverwaltung im Browser</footer>
+<footer>Huschels Touren Cockpit · V0.1.5 · lokale Projektverwaltung im Browser</footer>
 </div>
 
 <dialog id="projectDialog">
@@ -347,17 +384,18 @@ culinary:["regionale Küche","regionale Biere","Wein","besondere und ausgefallen
 avoid:"Schotter / Offroad; unnötige Autobahn; langweilige Hauptverkehrsachsen",extra:""
 };
 const steps=[
-{id:"research",n:1,title:"Recherche",text:"Idee, Etappen, Ziele, Hotels und Besonderheiten mit ChatGPT vorbereiten."},
-{id:"kurviger",n:2,title:"Route in Kurviger",text:"Motorradroute ausarbeiten und anschließend als GPX exportieren."},
-{id:"planned",n:3,title:"GPX übernehmen",text:"Kurviger-GPX ins Cockpit laden und an Tour Navigator weitergeben."},
-{id:"navigator",n:4,title:"Tour bearbeiten",text:"Punkte editieren, Tagesziele N1… setzen und Route finalisieren."},
-{id:"guide",n:5,title:"Reiseführer",text:"ChatGPT-Reiseplanungs-JSON erzeugen und Wildhogs Reiseführer erstellen."},
-{id:"driven",n:6,title:"Gefahrene Tour",text:"Nach der Reise die tatsächlich gefahrene GPX übernehmen."},
-{id:"video",n:7,title:"Routenvideo",text:"Finalen Navigator-Stand direkt an Tour Animator übergeben."}
+{id:"research",n:1,title:"Recherche",text:"Reiseangaben erfassen und mit dem festen Master-Prompt in ChatGPT planen."},
+{id:"preplan",n:2,title:"ChatGPT-Vorplanung",text:"Provisorische Reisebeschreibung und erste GPX im Cockpit archivieren."},
+{id:"kurviger",n:3,title:"Route in Kurviger",text:"Die ChatGPT-GPX importieren und die tatsächliche Straßenführung fahrerisch ausarbeiten."},
+{id:"planned",n:4,title:"Kurviger-GPX zurück",text:"Die aus Kurviger exportierte GPX wird zur verbindlichen Planungsroute."},
+{id:"navigator",n:5,title:"Tour bearbeiten",text:"Verbindliche Route bearbeiten und Tagesziele N1… final festlegen."},
+{id:"guide",n:6,title:"Reiseführer",text:"Aus dem finalen Navigator-Stand die strukturierte Reiseplanungs-JSON erzeugen."},
+{id:"driven",n:7,title:"Gefahrene Tour",text:"Nach der Reise die tatsächlich gefahrene GPX übernehmen."},
+{id:"video",n:8,title:"Routenvideo",text:"Finalen Navigator-Stand direkt an Tour Animator übergeben."}
 ];
 let settings=loadStored(SETTINGS_KEY,DEFAULT_SETTINGS), project=loadStored(APP_KEY,null);
 
-function freshProject(){return {format:"HuschelsTourenCockpitProject",version:1,id:"tour-"+Date.now(),title:"Neue Tour",year:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),research:{done:false,answers:{...RESEARCH_DEFAULTS}},plannedGpx:null,navigatorSnapshot:null,guideJson:null,drivenGpx:null,finalNavigatorSnapshot:null,videoDone:false,history:[]}}
+function freshProject(){return {format:"HuschelsTourenCockpitProject",version:1,id:"tour-"+Date.now(),title:"Neue Tour",year:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),research:{done:false,answers:{...RESEARCH_DEFAULTS}},prePlan:{description:"",savedAt:null},chatgptGpx:null,kurvigerOpenedAt:null,plannedGpx:null,navigatorSnapshot:null,guideJson:null,drivenGpx:null,finalNavigatorSnapshot:null,videoDone:false,history:[]}}
 function ensureProject(){
  if(!project)project=freshProject();
  if(!project.research)project.research={done:false,answers:{...RESEARCH_DEFAULTS}};
@@ -367,6 +405,9 @@ function ensureProject(){
    delete project.research.notes;
  }
  project.research.answers={...RESEARCH_DEFAULTS,...project.research.answers};
+ if(!project.prePlan)project.prePlan={description:"",savedAt:null};
+ if(!("chatgptGpx" in project))project.chatgptGpx=null;
+ if(!("kurvigerOpenedAt" in project))project.kurvigerOpenedAt=null;
 }
 function loadStored(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch(_){return fallback}}
 function save(){ensureProject();project.updatedAt=new Date().toISOString();localStorage.setItem(APP_KEY,JSON.stringify(project));render()}
@@ -383,9 +424,30 @@ function parseGpx(txt){
  nodes=byName("trkpt");if(nodes.length){const max=60,step=Math.max(1,Math.ceil(nodes.length/max));let picked=nodes.filter((_,i)=>i%step===0);if(picked[picked.length-1]!==nodes[nodes.length-1])picked.push(nodes[nodes.length-1]);return {points:picked.map((n,i)=>make(n,i,"trkpt")).filter(good),kind:`Trackpunkte, ausgedünnt aus ${nodes.length}`,rawCount:nodes.length}}
  throw new Error("Die GPX enthält keine Route-, Weg- oder Trackpunkte.");
 }
-function phaseState(){ensureProject();return {research:!!project.research?.done,kurviger:!!project.plannedGpx,planned:!!project.plannedGpx,navigator:!!project.navigatorSnapshot?.points?.length,guide:!!project.guideJson,driven:!!project.drivenGpx,video:!!project.videoDone}}
-function nextStep(){const s=phaseState();if(project.title==="Neue Tour")return "project";if(!s.research)return "research";if(!s.kurviger)return "kurviger";if(!s.planned)return "planned";if(!s.navigator)return "navigator";if(!s.guide)return "guide";if(!s.driven)return "driven";if(!project.finalNavigatorSnapshot)return "finalNavigator";if(!s.video)return "video";return "complete"}
-function phaseText(id){return {project:["Projekt anlegen","Tourname festlegen und loslegen"],research:["Recherche starten","Rechercheauftrag vorbereiten und ChatGPT öffnen"],kurviger:["Route in Kurviger planen","Route ausarbeiten und GPX exportieren"],planned:["Kurviger-GPX laden","GPX-Datei hier ins Cockpit übernehmen"],navigator:["Tour Navigator öffnen","Route bearbeiten und Tagesziele festlegen"],guide:["Reiseführer vorbereiten","Reiseplanungs-JSON im Navigator exportieren und hier einlesen"],driven:["Gefahrene GPX laden","Nach der Reise den tatsächlichen Track übernehmen"],finalNavigator:["Gefahrene Route bearbeiten","Gefahrene GPX an Tour Navigator geben und finalen Stand zurückholen"],video:["Tour Animator öffnen","Finale Route direkt an den Animator übergeben"],complete:["Workflow abgeschlossen","Projekt sichern oder eine neue Tour beginnen"]}[id]}
+function phaseState(){ensureProject();return {
+ research:!!project.research?.done,
+ preplan:!!project.prePlan?.description?.trim() && !!project.chatgptGpx?.points?.length,
+ kurviger:!!project.kurvigerOpenedAt,
+ planned:!!project.plannedGpx?.points?.length,
+ navigator:!!project.navigatorSnapshot?.points?.length,
+ guide:!!project.guideJson,
+ driven:!!project.drivenGpx,
+ video:!!project.videoDone
+}}
+function nextStep(){const s=phaseState();if(project.title==="Neue Tour")return "project";if(!s.research)return "research";if(!s.preplan)return "preplan";if(!s.kurviger)return "kurviger";if(!s.planned)return "planned";if(!s.navigator)return "navigator";if(!s.guide)return "guide";if(!s.driven)return "driven";if(!project.finalNavigatorSnapshot)return "finalNavigator";if(!s.video)return "video";return "complete"}
+function phaseText(id){return {
+project:["Projekt anlegen","Tourname festlegen und loslegen"],
+research:["Recherche starten","Reiseangaben erfassen und ChatGPT-Planung erzeugen"],
+preplan:["ChatGPT-Ergebnis übernehmen","Vorläufige Beschreibung und erste GPX im Cockpit speichern"],
+kurviger:["Route in Kurviger ausarbeiten","ChatGPT-GPX in Kurviger importieren und fahrerisch verändern"],
+planned:["Kurviger-GPX zurückladen","Die bearbeitete GPX wird jetzt verbindliche Planungsgrundlage"],
+navigator:["Tour Navigator öffnen","Nur die Kurviger-GPX an Tour Navigator übergeben"],
+guide:["Reiseführer vorbereiten","Aus dem finalen Navigator-Stand die Reiseplanungs-JSON erzeugen"],
+driven:["Gefahrene GPX laden","Nach der Reise den tatsächlichen Track übernehmen"],
+finalNavigator:["Gefahrene Route bearbeiten","Gefahrene GPX an Tour Navigator geben und finalen Stand zurückholen"],
+video:["Tour Animator öffnen","Finale gefahrene Route direkt an den Animator übergeben"],
+complete:["Workflow abgeschlossen","Projekt sichern oder eine neue Tour beginnen"]
+}[id]}
 function showMessage(msg,kind=""){const el=document.getElementById("message");el.textContent=msg;el.className="notice "+kind}
 
 
@@ -441,6 +503,7 @@ Besondere Wünsche / Zusatzwünsche: ${a.extra||"keine"}`}
 
 function clearGuidance(){
   document.getElementById("researchArea")?.classList.remove("active-input");
+  document.getElementById("prePlanArea")?.classList.remove("active-input");
   document.getElementById("filesPanel")?.classList.remove("active-panel","pulse-guide");
   document.getElementById("workflowPanel")?.classList.remove("active-panel","pulse-guide");
   document.getElementById("nextBtn")?.classList.remove("current-next");
@@ -452,6 +515,9 @@ function guideCurrentArea(next){
   if(next==="research"){
     document.getElementById("workflowPanel")?.classList.add("active-panel");
     document.getElementById("researchArea")?.classList.add("active-input");
+  }else if(next==="preplan"||next==="kurviger"){
+    document.getElementById("workflowPanel")?.classList.add("active-panel");
+    document.getElementById("prePlanArea")?.classList.add("active-input");
   }else if(next==="planned"||next==="driven"){
     document.getElementById("filesPanel")?.classList.add("active-panel");
   }else if(["navigator","guide","finalNavigator","video"].includes(next)){
@@ -468,9 +534,16 @@ function render(){
  ensureProject();const state=phaseState(),next=nextStep(),txt=phaseText(next);
  document.getElementById("projectTitleView").textContent=project.title+(project.year?` · ${project.year}`:"");document.getElementById("projectMeta").textContent=`Zuletzt geändert: ${new Date(project.updatedAt).toLocaleString("de-DE")}`;
  document.getElementById("phaseLabel").textContent=txt[0];document.getElementById("nextTitle").textContent=txt[0];document.getElementById("nextDesc").textContent=txt[1]+" ›";setResearchForm(project.research.answers);updateFilenamePreview();
- const current={project:null,research:"research",kurviger:"kurviger",planned:"planned",navigator:"navigator",guide:"guide",driven:"driven",finalNavigator:"driven",video:"video",complete:null}[next];
+ document.getElementById("prePlanDescription").value=project.prePlan?.description||"";
+ document.getElementById("prePlanDescriptionStatus").textContent=project.prePlan?.description?.trim()?"Entwurf gespeichert":"noch nicht gespeichert";
+ document.getElementById("chatgptGpxStatus").textContent=project.chatgptGpx?`${project.chatgptGpx.fileName} · ${project.chatgptGpx.points.length} Punkte`:"noch nicht geladen";
+ document.getElementById("downloadChatgptGpxBtn").disabled=!project.chatgptGpx?.rawText;
+ document.getElementById("openKurvigerFromPrePlanBtn").disabled=!(project.prePlan?.description?.trim()&&project.chatgptGpx?.points?.length);
+ const current={project:null,research:"research",preplan:"preplan",kurviger:"kurviger",planned:"planned",navigator:"navigator",guide:"guide",driven:"driven",finalNavigator:"driven",video:"video",complete:null}[next];
  document.getElementById("steps").innerHTML=steps.map(st=>`<article class="step ${state[st.id]?"done":""} ${current===st.id?"current":""}"><span class="check">${state[st.id]?"✓":current===st.id?"→":"○"}</span><div class="num">SCHRITT ${st.n}</div><h3>${st.title}</h3><p>${st.text}</p><div class="step-actions">${stepActions(st.id)}</div></article>`).join("");
  document.getElementById("sumProject").textContent=project.title==="Neue Tour"?"noch nicht benannt":project.title;
+ document.getElementById("sumPrePlan").textContent=project.prePlan?.description?.trim()?"Entwurf gespeichert":"–";
+ document.getElementById("sumChatgptGpx").textContent=project.chatgptGpx?`${project.chatgptGpx.fileName} · ${project.chatgptGpx.points.length} P.`:"–";
  document.getElementById("sumPlanned").textContent=project.plannedGpx?`${project.plannedGpx.fileName} · ${project.plannedGpx.points.length} P.`:"–";
  document.getElementById("sumNavigator").textContent=project.navigatorSnapshot?`${project.navigatorSnapshot.points.length} Punkte · ${dayCount(project.navigatorSnapshot)} Tagesziele`:"–";
  document.getElementById("sumGuide").textContent=project.guideJson?(project.guideJson.fileName||"eingelesen"):"–";
@@ -480,7 +553,58 @@ function render(){
  guideCurrentArea(next);
 }
 function dayCount(s){return new Set((s?.points||[]).map(p=>p.day).filter(Boolean)).size}
-function stepActions(id){const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;if(id==="research")return b("openResearch","1 · Angaben bearbeiten")+b("copyPrompt","2 · Reiseplanung kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):"";if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):"";if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");return ""}
+function stepActions(id){
+ const b=(a,l,c="mini")=>`<button class="${c}" data-action="${a}">${l}</button>`;
+ if(id==="research")return b("openResearch","1 · Angaben bearbeiten")+b("copyPrompt","2 · Reiseplanung kopieren")+b("chatgpt","3 · ChatGPT öffnen","mini primary");
+ if(id==="preplan")return b("openPrePlan","1 · Ergebnis übernehmen")+b("loadChatgptGpx","2 · GPX laden","mini primary");
+ if(id==="kurviger")return b("kurviger","1 · Kurviger öffnen","mini primary");
+ if(id==="planned")return project.plannedGpx?b("toNavigator","1 · An Navigator","mini primary"):b("loadPlannedGpx","1 · Kurviger-GPX laden","mini primary");
+ if(id==="navigator")return b("navigator","1 · Navigator öffnen","mini primary")+b("fromNavigator","2 · Stand übernehmen","mini ok");
+ if(id==="guide")return b("navigator","1 · JSON im Navigator erzeugen")+(settings.guideUrl?b("guide","2 · Reiseführer öffnen","mini primary"):"");
+ if(id==="driven")return project.drivenGpx?b("toNavigatorDriven","1 · Gefahrene Route an Navigator","mini primary"):b("loadDrivenGpx","1 · Gefahrene GPX laden","mini primary");
+ if(id==="video")return b("animator","1 · Animator öffnen","mini primary")+b("videoDone","2 · Video fertig ✓","mini ok");
+ return "";
+}
+
+function openPrePlanArea(){
+ const area=document.getElementById("prePlanArea"),field=document.getElementById("prePlanDescription");
+ document.getElementById("workflowPanel")?.classList.add("active-panel","pulse-guide");
+ area?.classList.add("active-input");area?.scrollIntoView({behavior:"smooth",block:"start"});
+ setTimeout(()=>field?.focus({preventScroll:true}),420);
+}
+function savePrePlanDescription(){
+ ensureProject();
+ project.prePlan.description=(document.getElementById("prePlanDescription")?.value||"").trim();
+ project.prePlan.savedAt=project.prePlan.description?new Date().toISOString():null;
+ log("Vorläufige ChatGPT-Reisebeschreibung gespeichert");
+ save();
+ showMessage("Vorläufige Reisebeschreibung gespeichert. Sie bleibt nur Archiv/Vorplanung und wird nicht an Tour Navigator übergeben.","ok");
+}
+async function handleChatgptGpx(file){
+ if(!file)return;
+ try{
+  const raw=await file.text();
+  const parsed=parseGpx(raw);
+  project.chatgptGpx={fileName:file.name,importedAt:new Date().toISOString(),kind:parsed.kind,rawCount:parsed.rawCount,points:parsed.points,rawText:raw};
+  log("Vorläufige ChatGPT-GPX geladen: "+file.name);
+  save();
+  showMessage(file.name+": "+parsed.points.length+" Punkte als vorläufige ChatGPT-GPX archiviert. Noch nicht für Tour Navigator verwenden.","ok");
+ }catch(e){showMessage("ChatGPT-GPX konnte nicht geladen werden: "+e.message,"warn")}
+}
+function downloadChatgptGpx(){
+ if(!project.chatgptGpx?.rawText){showMessage("Noch keine ChatGPT-GPX gespeichert.","warn");return}
+ const blob=new Blob([project.chatgptGpx.rawText],{type:"application/gpx+xml"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=project.chatgptGpx.fileName||generatedGpxFilename();a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function openKurviger(){
+ if(!project.chatgptGpx?.points?.length){showMessage("Zuerst die ChatGPT-GPX ins Cockpit übernehmen.","warn");return}
+ project.kurvigerOpenedAt=new Date().toISOString();
+ log("Kurviger für die fahrerische Feinplanung geöffnet");
+ save();
+ location.href=settings.kurvigerUrl;
+}
+
 function currentNavigatorPayload(preferDriven=true){if(preferDriven&&project.drivenGpx?.points?.length)return routeSnapshotFromPoints(project.drivenGpx.points,project.title+" – gefahren","Gefahrene GPX aus Huschels Touren Cockpit");if(project.navigatorSnapshot?.points?.length)return project.navigatorSnapshot;if(project.plannedGpx?.points?.length)return routeSnapshotFromPoints(project.plannedGpx.points,project.title,"Kurviger-GPX aus Huschels Touren Cockpit");return null}
 function toNavigator(preferDriven=true){const snap=currentNavigatorPayload(preferDriven);if(!snap){showMessage("Noch keine Route vorhanden.","warn");return}localStorage.setItem(NAV_KEY,JSON.stringify(snap));log("Route an Tour Navigator übergeben");save();location.href=settings.navigatorUrl}
 function fromNavigator(){try{const raw=localStorage.getItem(NAV_KEY);if(!raw)throw new Error("Im Browser ist noch kein Tour-Navigator-Stand gespeichert.");const snap=JSON.parse(raw);if(!Array.isArray(snap.points)||snap.points.length<2)throw new Error("Der gespeicherte Navigator-Stand ist ungültig.");if(project.drivenGpx)project.finalNavigatorSnapshot=snap;else project.navigatorSnapshot=snap;if(snap.tourTitle&&project.title==="Neue Tour")project.title=snap.tourTitle;log("Tour-Navigator-Stand übernommen");save();showMessage(`Navigator-Stand übernommen: ${snap.points.length} Punkte, ${dayCount(snap)} Tagesziele.`,"ok")}catch(e){showMessage(e.message,"warn")}}
@@ -501,15 +625,22 @@ Verwende genau diesen Dateinamen für ERGEBNIS D.`;
 async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(_){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}}
 function safeName(s){return String(s||"Tour").replace(/[^\p{L}\p{N}\-_]+/gu,"_").replace(/^_+|_+$/g,"")}
 function saveBlob(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function handleNext(){const n=nextStep();if(n==="project")return openProjectDialog();if(n==="research")return openResearchInput();if(n==="kurviger")return location.href=settings.kurvigerUrl;if(n==="planned")return document.getElementById("plannedGpxInput").click();if(n==="navigator")return toNavigator(false);if(n==="guide")return location.href=settings.navigatorUrl;if(n==="driven")return document.getElementById("drivenGpxInput").click();if(n==="finalNavigator")return toNavigator(true);if(n==="video")return toAnimator();if(n==="complete")return saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project)}
+function handleNext(){const n=nextStep();if(n==="project")return openProjectDialog();if(n==="research")return openResearchInput();if(n==="preplan")return openPrePlanArea();if(n==="kurviger")return openKurviger();if(n==="planned")return document.getElementById("plannedGpxInput").click();if(n==="navigator")return toNavigator(false);if(n==="guide")return location.href=settings.navigatorUrl;if(n==="driven")return document.getElementById("drivenGpxInput").click();if(n==="finalNavigator")return toNavigator(true);if(n==="video")return toAnimator();if(n==="complete")return saveBlob(`${safeName(project.title)}_TourCockpit_Project.json`,project)}
 function openProjectDialog(){document.getElementById("projectName").value=project.title==="Neue Tour"?"":project.title;document.getElementById("projectYear").value=project.year||"";document.getElementById("projectDialog").showModal()}
-async function handleGpx(input,kind){const file=input.files?.[0];if(!file)return;try{const parsed=parseGpx(await file.text()),data={fileName:file.name,importedAt:new Date().toISOString(),kind:parsed.kind,rawCount:parsed.rawCount,points:parsed.points};if(kind==="planned")project.plannedGpx=data;else project.drivenGpx=data;log(`${kind==="planned"?"Geplante":"Gefahrene"} GPX geladen: ${file.name}`);save();showMessage(`${file.name}: ${parsed.points.length} Punkte übernommen (${parsed.kind}).`,"ok")}catch(e){showMessage("GPX konnte nicht geladen werden: "+e.message,"warn")}input.value=""}
+async function handleGpx(input,kind){const file=input.files?.[0];if(!file)return;try{const raw=await file.text();const parsed=parseGpx(raw);const data={fileName:file.name,importedAt:new Date().toISOString(),kind:parsed.kind,rawCount:parsed.rawCount,points:parsed.points,rawText:raw};if(kind==="planned"){project.plannedGpx=data;project.navigatorSnapshot=null;project.guideJson=null;log("Verbindliche Kurviger-GPX geladen: "+file.name);showMessage(file.name+": "+parsed.points.length+" Punkte übernommen. Diese Kurviger-GPX ist jetzt die verbindliche Planungsroute.","ok")}else{project.drivenGpx=data;project.finalNavigatorSnapshot=null;log("Gefahrene GPX geladen: "+file.name);showMessage(file.name+": "+parsed.points.length+" gefahrene Punkte übernommen.","ok")}save()}catch(e){showMessage("GPX konnte nicht geladen werden: "+e.message,"warn")}input.value=""}
 async function handleJson(file){if(!file)return;try{const data=JSON.parse(await file.text());if(data.format==="HuschelsTourenCockpitProject"){project=data;ensureProject();log("Cockpit-Projekt importiert");save();return showMessage("Cockpit-Projekt vollständig geladen.","ok")}if(data.format==="TourNavigatorModern-Backup"&&Array.isArray(data.points)){project.navigatorSnapshot=data;if(data.tourTitle)project.title=data.tourTitle;log("Tour-Navigator-Backup importiert");save();return showMessage("Tour-Navigator-Backup übernommen.","ok")}project.guideJson={fileName:file.name,importedAt:new Date().toISOString(),data};log("Reiseplanungs-JSON importiert");save();showMessage("JSON wurde dem Reiseführer-Schritt zugeordnet.","ok")}catch(e){showMessage("JSON konnte nicht geladen werden: "+e.message,"warn")}}
 function settingsToForm(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>document.getElementById(k).value=settings[k]||"")}
 function formToSettings(){["navigatorUrl","animatorUrl","kurvigerUrl","chatgptUrl","guideUrl"].forEach(k=>settings[k]=(document.getElementById(k).value||"").trim());localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));render()}
 
-document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="copyPrompt"){persistResearchForm();copyText(researchPrompt());showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")location.href=settings.kurvigerUrl;if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
+document.getElementById("steps").addEventListener("click",e=>{const a=e.target.closest("[data-action]");if(!a)return;const x=a.dataset.action;if(x==="openResearch"){openResearchInput()}if(x==="openPrePlan"){openPrePlanArea()}if(x==="loadChatgptGpx"){document.getElementById("chatgptGpxInput").click()}if(x==="loadPlannedGpx"){document.getElementById("plannedGpxInput").click()}if(x==="loadDrivenGpx"){document.getElementById("drivenGpxInput").click()}if(x==="copyPrompt"){persistResearchForm();copyText(researchPrompt());showMessage(`Reiseplanungs-Prompt kopiert. GPX-Dateiname: ${generatedGpxFilename()}`,"ok")}if(x==="chatgpt")location.href=settings.chatgptUrl;if(x==="kurviger")openKurviger();if(x==="toNavigator")toNavigator(false);if(x==="toNavigatorDriven")toNavigator(true);if(x==="navigator")location.href=settings.navigatorUrl;if(x==="fromNavigator")fromNavigator();if(x==="guide"&&settings.guideUrl)location.href=settings.guideUrl;if(x==="animator")toAnimator();if(x==="videoDone"){project.videoDone=true;log("Routenvideo fertig");save()}});
 document.getElementById("nextBtn").addEventListener("click",handleNext);
+document.getElementById("savePrePlanBtn").addEventListener("click",savePrePlanDescription);
+document.getElementById("loadPrePlanTextBtn").addEventListener("click",()=>document.getElementById("prePlanTextInput").click());
+document.getElementById("prePlanTextInput").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{document.getElementById("prePlanDescription").value=await file.text();savePrePlanDescription()}catch(err){showMessage("Textdatei konnte nicht gelesen werden: "+err.message,"warn")}e.target.value=""});
+document.getElementById("loadChatgptGpxBtn").addEventListener("click",()=>document.getElementById("chatgptGpxInput").click());
+document.getElementById("chatgptGpxInput").addEventListener("change",async e=>{await handleChatgptGpx(e.target.files?.[0]);e.target.value=""});
+document.getElementById("downloadChatgptGpxBtn").addEventListener("click",downloadChatgptGpx);
+document.getElementById("openKurvigerFromPrePlanBtn").addEventListener("click",openKurviger);
 document.getElementById("plannedGpxInput").addEventListener("change",e=>handleGpx(e.target,"planned"));
 document.getElementById("drivenGpxInput").addEventListener("change",e=>handleGpx(e.target,"driven"));
 document.getElementById("jsonInput").addEventListener("change",e=>{handleJson(e.target.files?.[0]);e.target.value=""});
