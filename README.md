@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.2
+# Huschels Touren Cockpit V0.1.3
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -53,3 +53,11 @@ GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
 - aktive Eingabe-/Arbeitsbereiche werden orange hervorgehoben
 - Suchmaske sichtbarer beschriftet und mit Hinweis versehen
 - Recherche-Zeitstrahl jetzt: 1 Suchmaske öffnen → 2 Auftrag kopieren → 3 ChatGPT öffnen → 4 Recherche erledigt
+
+
+## V0.1.3
+
+- vorhandener alter Recherche-Freitext wird automatisch in die neue Suchmaske übernommen
+- Suchmaske erscheint beim Start zuverlässig auch in bestehenden Projekten
+- neuer Button „Suchmaske neu einsetzen“
+- Recherchefeld höher und monospace-artig für bessere Lesbarkeit
