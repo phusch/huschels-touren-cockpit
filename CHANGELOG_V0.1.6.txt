@@ -1,0 +1,8 @@
+Huschels Touren Cockpit V0.1.6
+
+- zweistufiger ChatGPT-Prozess
+- Stufe 1: Grobplanung inklusive möglicher Hotels, Sehenswürdigkeiten, Aktivitäten und Kulinarik
+- keine GPX/Koordinatenpflicht in Stufe 1
+- Stufe 2: eigener kompakter GPX-Prompt
+- GPX ausschließlich aus bestätigter Grobplanung
+- danach Kurviger wie bisher

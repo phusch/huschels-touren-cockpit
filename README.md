@@ -1,4 +1,4 @@
-# Huschels Touren Cockpit V0.1.5
+# Huschels Touren Cockpit V0.1.6
 
 Zentraler Überbau für Peters Reise-Workflow:
 
@@ -83,3 +83,14 @@ GitHub Pages: `https://phusch.github.io/huschels-touren-cockpit/`
 - nur diese Kurviger-GPX wird an Tour Navigator weitergegeben
 - ChatGPT-GPX kann aus dem Cockpit erneut heruntergeladen werden
 - Workflow jetzt in 8 klar getrennten Schritten
+
+## V0.1.6
+
+- ChatGPT-Prozess in zwei getrennte Stufen aufgeteilt
+- Stufe 1: Grobplanung ohne GPX
+- Grobplanung enthält bereits sinnvolle Hotel-/Pensions-/Gasthofvorschläge
+- Grobplanung enthält bereits Sehenswürdigkeiten, Aktivitäten und Kulinarik
+- Hotels/Sehenswürdigkeiten ausdrücklich als vorläufig markiert, da Kurviger die Route später ändern kann
+- Stufe 2: schlanker GPX-Auftrag nur aus der bestätigten Grobplanung
+- erst Stufe 2 recherchiert notwendige Koordinaten und erzeugt GPX 1.1
+- danach weiterhin Kurviger → verbindliche GPX → Tour Navigator
